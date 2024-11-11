@@ -1,0 +1,18 @@
+class CreateIrontrailSupportTables < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def change
+    create_table :irontrail_trigger_errors, id: :bigserial do |t|
+      t.column :pg_errcode, :text
+      t.column :pg_message, :text
+      t.column :err_text, :text
+      t.column :ex_detail, :text
+      t.column :ex_hint, :text
+      t.column :ex_ctx, :text
+      t.column :op, :text
+      t.column :table_name, :text
+      t.column :old_data, :jsonb
+      t.column :new_data, :jsonb
+      t.column :query, :text
+      t.column :created_at, :timestamp
+    end
+  end
+end
