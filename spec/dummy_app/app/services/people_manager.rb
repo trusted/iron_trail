@@ -23,7 +23,7 @@ class PeopleManager
     guitar = Guitar.new(person:)
 
     CLASSIC_GUITARS.each do |name|
-      guitar.description = "#{name} #{variation}x"
+      guitar.description = "#{name} #{variation}"
       guitar.save!
     end
 
