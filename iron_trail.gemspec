@@ -20,8 +20,17 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
 
   s.add_dependency 'rails', '>= 7.1'
+  s.add_dependency 'request_store', '~> 1.5'
 
   s.add_development_dependency 'pg_party', '~> 1.8'
+  s.add_development_dependency 'appraisal', '~> 2.5'
+
+  s.add_development_dependency 'rake', '~> 13.2'
+  s.add_development_dependency 'rspec-rails', '~> 7.1'
+  s.add_development_dependency 'pg', '~> 1.2'
+  # s.add_development_dependency 'ffaker', '~> 2.23'
+  s.add_development_dependency 'json', '~> 2.8'
+  s.add_development_dependency 'sidekiq', '~> 7.2'
 
   s.required_ruby_version = '>= 3.1.0'
 end

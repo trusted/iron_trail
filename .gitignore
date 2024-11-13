@@ -1,6 +1,18 @@
 
+# :) :(
+.DS_Store
 
+# gem builds
 *.gem
 
 Gemfile.lock
+
+# dummy app artifacts
+spec/dummy_app/log
+spec/dummy_app/tmp
+
+# testing
+.rspec_results
+
+spec/dummy_app/db/migrate/*_create_irontrail_*
 
