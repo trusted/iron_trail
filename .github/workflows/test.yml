@@ -1,0 +1,52 @@
+name: test
+on: [push, pull_request]
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Ruby ${{ matrix.ruby }}, ${{ matrix.gemfile }}.gemfile
+    runs-on: ubuntu-latest
+    services:
+      test-postgres:
+        image: postgres
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: foobar123
+    strategy:
+      matrix:
+        gemfile: ['rails_7.1', 'rails_7.2']
+        ruby: ['3.2', '3.3']
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+        env:
+          BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
+      - name: Create database
+        run: |
+          createdb \
+            --host=$POSTGRES_HOST \
+            --port=$POSTGRES_PORT \
+            --username=postgres \
+            dummy
+        env:
+          PGPASSWORD: foobar123
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+      - name: Run specs
+        run: bundle exec rake install_database_yml spec
+        env:
+          BACKTRACE: 1
+          BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
+          DB: postgres
+          IRONTRAIL_CI_DATABASE: dummy
+          IRONTRAIL_CI_DB_USER: postgres
+          IRONTRAIL_CI_DB_PASSWORD: foobar123
+          IRONTRAIL_CI_DB_HOST: 127.0.0.1
+          IRONTRAIL_CI_DB_PORT: 5432
