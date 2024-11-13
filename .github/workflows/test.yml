@@ -9,15 +9,23 @@ jobs:
     runs-on: ubuntu-latest
     services:
       test-postgres:
-        image: postgres
+        image: postgres:${{ matrix.postgres }}
         ports:
           - 5432:5432
         env:
           POSTGRES_PASSWORD: foobar123
     strategy:
       matrix:
-        gemfile: ['rails_7.1', 'rails_7.2']
-        ruby: ['3.2', '3.3']
+        gemfile:
+        - rails_7.1
+        - rails_7.2
+        ruby:
+        - '3.2'
+        - '3.3'
+        postgres:
+        - '15'
+        - '16'
+        - '17'
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
