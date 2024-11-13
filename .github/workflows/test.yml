@@ -5,7 +5,7 @@ permissions:
 
 jobs:
   test:
-    name: Ruby ${{ matrix.ruby }}, ${{ matrix.gemfile }}.gemfile
+    name: Ruby ${{ matrix.ruby }}, ${{ matrix.gemfile }}.gemfile, PG ${{ matrix.postgres }}
     runs-on: ubuntu-latest
     services:
       test-postgres:
