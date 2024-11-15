@@ -1,0 +1,8 @@
+test: &test
+  adapter: postgresql
+  protocol: TCP
+  database: <%= ENV.fetch('IRONTRAIL_CI_DATABASE', 'iron_trail_test') %>
+  username: <%= ENV.fetch('IRONTRAIL_CI_DB_USER', 'postgres') %>
+  password: <%= ENV.fetch('IRONTRAIL_CI_DB_PASSWORD', '') %>
+  host: <%= ENV.fetch('IRONTRAIL_CI_DB_HOST', 'localhost') %>
+  port: <%= ENV.fetch('IRONTRAIL_CI_DB_PORT', 5432) %>
