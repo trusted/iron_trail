@@ -10,6 +10,7 @@ Gemfile.lock
 # dummy app artifacts
 spec/dummy_app/log
 spec/dummy_app/tmp
+spec/dummy_app/config/database.yml
 
 # testing
 .rspec_results

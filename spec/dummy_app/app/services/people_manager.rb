@@ -19,7 +19,7 @@ class PeopleManager
 
   def employ_classic_guitars(person, variation)
     # Disclaimer: I know nothing about guitars, this is just some random
-    # stuff I got from out there.
+    # stuff I got from out there :)
     guitar = Guitar.new(person:)
 
     CLASSIC_GUITARS.each do |name|
