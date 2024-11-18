@@ -8,9 +8,9 @@ class CreateIrontrailChanges < ActiveRecord::Migration[<%= ActiveRecord::Migrati
       t.column :record_id, :text
       t.column :operation, :text
 
-      t.column :old_record, :jsonb
-      t.column :new_record, :jsonb
-      t.column :changes, :jsonb
+      t.column :rec_old, :jsonb
+      t.column :rec_new, :jsonb
+      t.column :rec_changes, :jsonb
       t.column :metadata, :jsonb
 
       t.column :created_at, :timestamp, null: false

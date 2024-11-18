@@ -242,7 +242,6 @@ DEPENDENCIES
   json (~> 2.8)
   pg (~> 1.2)
   pg_party (~> 1.8)
-  rails (~> 7.2.2)
   rake (~> 13.2)
   rspec-rails (~> 7.1)
   sidekiq (~> 7.2)
