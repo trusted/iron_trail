@@ -25,17 +25,18 @@ jobs:
           POSTGRES_PASSWORD: foobar123
     strategy:
       matrix:
-      # old
-      - { gemfile: 'rails_7.1', ruby: '3.3', postgres: '15' }
-      - { gemfile: 'rails_7.1', ruby: '3.3', postgres: '16' }
-      # current
-      - { gemfile: 'rails_7.2', ruby: '3.3', postgres: '16' }
-      - { gemfile: 'rails_7.2', ruby: '3.3', postgres: '17' }
-      # modern
-      - { gemfile: 'rails_8.0', ruby: '3.3', postgres: '16' }
-      - { gemfile: 'rails_8.0', ruby: '3.3', postgres: '17' }
-      # futuristic
-      - { gemfile: 'rails_8.0', ruby: 'head', postgres: '17' }
+        include:
+        # old
+        - { gemfile: 'rails_7.1', ruby: '3.3', postgres: '15' }
+        - { gemfile: 'rails_7.1', ruby: '3.3', postgres: '16' }
+        # current
+        - { gemfile: 'rails_7.2', ruby: '3.3', postgres: '16' }
+        - { gemfile: 'rails_7.2', ruby: '3.3', postgres: '17' }
+        # modern
+        - { gemfile: 'rails_8.0', ruby: '3.3', postgres: '16' }
+        - { gemfile: 'rails_8.0', ruby: '3.3', postgres: '17' }
+        # futuristic
+        - { gemfile: 'rails_8.0', ruby: 'head', postgres: '17' }
     steps:
     - name: Checkout source
       uses: actions/checkout@v4
