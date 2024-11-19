@@ -37,7 +37,7 @@ jobs:
         - { gemfile: 'rails_8.0', ruby: '3.3', postgres: '17', experimental: true }
         # futuristic
         - { gemfile: 'rails_8.0', ruby: 'head', postgres: '17', experimental: true }
-    continue-on-error: ${{ matrix.experimental }}
+    continue-on-error: ${{ matrix.experimental || 'false' }}
     steps:
     - name: Checkout source
       uses: actions/checkout@v4
