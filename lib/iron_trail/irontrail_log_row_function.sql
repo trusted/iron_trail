@@ -30,7 +30,7 @@ BEGIN
 
     IF (TG_OP = 'INSERT') THEN
         INSERT INTO "irontrail_changes" ("actor_id", "actor_type",
-          "record_table", "operation", "record_id", "rec_new", "metadata", "created_at")
+          "rec_table", "operation", "rec_id", "rec_new", "metadata", "created_at")
         VALUES (actor_id, actor_type,
           TG_TABLE_NAME, 'i', NEW.id, row_to_json(NEW), it_meta_obj, NOW());
 
@@ -49,15 +49,15 @@ BEGIN
               END IF;
           END LOOP;
 
-          INSERT INTO "irontrail_changes" ("actor_id", "actor_type", "record_table", "operation",
-            "record_id", "rec_old", "rec_new", "rec_changes", "metadata", "created_at")
+          INSERT INTO "irontrail_changes" ("actor_id", "actor_type", "rec_table", "operation",
+            "rec_id", "rec_old", "rec_new", "rec_delta", "metadata", "created_at")
           VALUES (actor_id, actor_type, TG_TABLE_NAME, 'u', NEW.id, row_to_json(OLD), row_to_json(NEW),
           u_changes, it_meta_obj, NOW());
 
         END IF;
     ELSIF (TG_OP = 'DELETE') THEN
-        INSERT INTO "irontrail_changes" ("actor_id", "actor_type", "record_table", "operation",
-          "record_id", "rec_old", "metadata", "created_at")
+        INSERT INTO "irontrail_changes" ("actor_id", "actor_type", "rec_table", "operation",
+          "rec_id", "rec_old", "metadata", "created_at")
         VALUES (actor_id, actor_type, TG_TABLE_NAME, 'd', OLD.id, row_to_json(OLD), it_meta_obj, NOW());
 
     END IF;

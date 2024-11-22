@@ -10,6 +10,11 @@ module IronTrail
 
       return result unless IronTrail.enabled? && method == :create_table
 
+      start_at_version = IronTrail.config.track_migrations_starting_at_version
+      if !running_from_schema && start_at_version
+        return result if self.version < Integer(start_at_version)
+      end
+
       table_name = args.first.to_s
       return result if IronTrail.ignore_table?(table_name)
 

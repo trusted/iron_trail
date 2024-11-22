@@ -7,6 +7,7 @@ class SetupTestDb < ::ActiveRecord::Migration::Current
     create_table :people, id: :bigserial, force: true do |t|
       t.string :first_name, null: false
       t.string :last_name, null: false
+      t.string :favorite_planet
       t.bigint :converted_by_pill_id
       t.timestamp :first_acquired_guitar_at
     end

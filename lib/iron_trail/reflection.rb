@@ -31,10 +31,10 @@ module IronTrail
       )
 
       scope.where!(
-        table['record_id']
+        table['rec_id']
           .eq(foreign_value)
           .and(
-            table['record_table']
+            table['rec_table']
             .eq(foreign_table.name)
           )
       )

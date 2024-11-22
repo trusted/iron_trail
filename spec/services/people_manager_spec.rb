@@ -9,7 +9,7 @@ RSpec.describe PeopleManager do
 
       expect(person.persisted?).to be true
 
-      results = ActiveRecord::Base.connection.execute("select * from irontrail_changes WHERE record_table='people' AND record_id=#{person.id}::text").to_a
+      results = ActiveRecord::Base.connection.execute("select * from irontrail_changes WHERE rec_table='people' AND rec_id=#{person.id}::text").to_a
       expect(results.length).to be 1
 
       record_new = JSON.parse(results.first['rec_new'])
@@ -46,7 +46,7 @@ RSpec.describe PeopleManager do
         people.each do |person|
           res = ActiveRecord::Base.connection.execute(<<~SQL).to_a
             SELECT * FROM irontrail_changes WHERE
-            record_table='guitars' AND rec_new->>'person_id'='#{person.id}'
+            rec_table='guitars' AND rec_new->>'person_id'='#{person.id}'
             ORDER BY id ASC
           SQL
 
