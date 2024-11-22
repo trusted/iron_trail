@@ -22,6 +22,11 @@ module IronTrail
         "create_irontrail_support_tables.rb.erb",
         "db/migrate/create_irontrail_support_tables.rb"
       )
+
+      migration_template(
+        "create_irontrail_trigger_function.rb.erb",
+        "db/migrate/create_irontrail_trigger_function.rb"
+      )
     end
 
     def self.next_migration_number(dirname)

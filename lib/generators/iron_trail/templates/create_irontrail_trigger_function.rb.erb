@@ -1,0 +1,12 @@
+class CreateIrontrailTriggerFunction < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
+  def up
+    IronTrail::DbFunctions.new(connection).tap do |db_fun|
+      db_fun.install_functions
+      # db_fun.
+    end
+  end
+
+  def down
+    IronTrail::DbFunctions.new(connection).remove_functions(cascade: true)
+  end
+end
