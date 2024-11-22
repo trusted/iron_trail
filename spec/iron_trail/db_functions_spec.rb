@@ -98,4 +98,24 @@ RSpec.describe IronTrail::DbFunctions do
     end
 
   end
+
+  describe 'function creation and removal' do
+    context 'with default setup' do
+      it 'has the function present' do
+        expect(instance.function_present?).to be true
+      end
+    end
+
+    it 'creates and deletes the function' do
+      instance.remove_functions(cascade: true)
+
+      expect(instance.function_present?).to be false
+
+      instance.install_functions
+
+      expect(instance.function_present?).to be true
+
+      instance.enable_for_all_missing_tables
+    end
+  end
 end

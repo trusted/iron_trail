@@ -49,6 +49,13 @@ module IronTrail
       connection.execute(stmt).to_a.count > 0
     end
 
+    def remove_functions(cascade:)
+      query = +"DROP FUNCTION irontrail_log_row"
+      query << " CASCADE" if cascade
+
+      connection.execute(query)
+    end
+
     def collect_all_tables(schema: 'public')
       # query pg_class rather than information schema because this way
       # we can get only regular tables and ignore partitions.
