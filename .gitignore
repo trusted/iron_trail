@@ -5,6 +5,8 @@
 # gem builds
 *.gem
 
+# gem locks
+gemfiles/*.gemfile.lock
 Gemfile.lock
 
 # dummy app artifacts
