@@ -2,8 +2,6 @@
 
 class SetupTestDb < ::ActiveRecord::Migration::Current
   def up
-    IronTrail::DbFunctions.new(connection).install_functions
-
     create_table :people, id: :bigserial, force: true do |t|
       t.string :first_name, null: false
       t.string :last_name, null: false

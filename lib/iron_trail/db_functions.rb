@@ -36,14 +36,27 @@ module IronTrail
       connection.execute(stmt).map { |row| row['table'] }
     end
 
-    def collect_all_tables(table_schema: 'public')
+    def function_present?(function: 'irontrail_log_row', schema: 'public')
+      stmt = <<~SQL
+        SELECT 1 FROM "pg_proc" p
+        INNER JOIN "pg_namespace" ns
+        ON (ns.oid = p.pronamespace)
+        WHERE p."proname"=#{connection.quote(function)}
+          AND ns."nspname"=#{connection.quote(schema)}
+        LIMIT 1;
+      SQL
+
+      connection.execute(stmt).to_a.count > 0
+    end
+
+    def collect_all_tables(schema: 'public')
       # query pg_class rather than information schema because this way
       # we can get only regular tables and ignore partitions.
       stmt = <<~SQL
         SELECT c.relname AS "table"
         FROM "pg_class" c INNER JOIN "pg_namespace" ns
         ON (ns.oid = c.relnamespace)
-        WHERE ns.nspname=#{connection.quote(table_schema)}
+        WHERE ns.nspname=#{connection.quote(schema)}
           AND c.relkind IN ('r', 'p')
           AND NOT c.relispartition
         ORDER BY "table" ASC;
