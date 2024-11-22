@@ -52,6 +52,12 @@ module IronTrail
       connection.execute(stmt).map { |row| row['table'] }
     end
 
+    def enable_for_all_missing_tables
+      collect_tables_tracking_status[:missing].each do |table_name|
+        enable_tracking_for_table(table_name)
+      end
+    end
+
     def collect_tables_tracking_status
       ignored_tables = OWN_TABLES + (IronTrail.config.ignored_tables || [])
 

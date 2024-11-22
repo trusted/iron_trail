@@ -2,7 +2,7 @@ class CreateIrontrailTriggerFunction < ActiveRecord::Migration[<%= ActiveRecord:
   def up
     IronTrail::DbFunctions.new(connection).tap do |db_fun|
       db_fun.install_functions
-      # db_fun.
+      db_fun.enable_for_all_missing_tables
     end
   end
 
