@@ -19,17 +19,6 @@ module IronTrail
       scope
     end
 
-    # def load_target
-    #   if find_target?
-    #     @target = merge_target_lists(find_target, target)
-    #   end
-    #
-    #   loaded!
-    #   target
-    # end
-
-    # parent method implementation at:
-    # https://github.com/rails/rails/blob/v7.2.2/activerecord/lib/active_record/associations/association.rb#L226-L250
     def find_target
       scope.to_a
     end
