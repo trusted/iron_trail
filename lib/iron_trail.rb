@@ -17,6 +17,7 @@ require 'iron_trail/query_transformer'
 require 'iron_trail/association'
 require 'iron_trail/reflection'
 require 'iron_trail/model'
+require 'iron_trail/change_model_concern'
 
 module IronTrail
   # These tables are owned by IronTrail and will always be ignored, that is,

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Person < ApplicationRecord
+  include IronTrail::Model
+
   has_many :guitars
   belongs_to :converted_by_pill,
     optional: true,

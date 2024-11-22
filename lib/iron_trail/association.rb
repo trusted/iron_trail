@@ -14,7 +14,7 @@ module IronTrail
       pk_value = owner._read_attribute(foreign_key)
       pk_table = owner.class.arel_table
 
-      scope.where!('record_id' => pk_value, 'record_table' => pk_table.name)
+      scope.where!('rec_id' => pk_value, 'rec_table' => pk_table.name)
 
       scope
     end

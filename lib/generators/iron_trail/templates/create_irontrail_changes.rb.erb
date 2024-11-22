@@ -4,22 +4,22 @@ class CreateIrontrailChanges < ActiveRecord::Migration[<%= ActiveRecord::Migrati
       t.column :id, :bigserial, null: false
       t.column :actor_type, :text
       t.column :actor_id, :text
-      t.column :record_table, :text
-      t.column :record_id, :text
+      t.column :rec_table, :text
+      t.column :rec_id, :text
       t.column :operation, :text
 
       t.column :rec_old, :jsonb
       t.column :rec_new, :jsonb
-      t.column :rec_changes, :jsonb
+      t.column :rec_delta, :jsonb
       t.column :metadata, :jsonb
 
       t.column :created_at, :timestamp, null: false
     end
 
-      # CREATE INDEX irontrail_changes_rec_id ON irontrail_changes (record_id);
-      # CREATE INDEX irontrail_changes_actor_id ON irontrail_changes (actor_id);
-      # CREATE INDEX irontrail_changes_rec_type ON irontrail_changes USING BRIN (record_table);
-      # CREATE INDEX irontrail_changes_actor_typr ON irontrail_changes USING BRIN (actor_type);
-      # CREATE INDEX irontrail_changes_created_at ON irontrail_changes USING BRIN (change_created_at);
+    add_index :irontrail_changes, :rec_id
+    add_index :irontrail_changes, :rec_table
+    add_index :irontrail_changes, :actor_id
+    add_index :irontrail_changes, :actor_type
+    add_index :irontrail_changes, :created_at, using: :brin
   end
 end
