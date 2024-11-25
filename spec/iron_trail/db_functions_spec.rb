@@ -99,6 +99,24 @@ RSpec.describe IronTrail::DbFunctions do
 
   end
 
+  describe '#trigger_errors_count' do
+    it 'is empty by default' do
+      expect(instance.trigger_errors_count).to be(0)
+    end
+
+    context 'when it is not empty' do
+      before do
+        connection.execute(<<~SQL)
+        INSERT INTO "irontrail_trigger_errors" (query) VALUES ('foo');
+        SQL
+      end
+
+      it 'what do you think it is now huh' do
+        expect(instance.trigger_errors_count).to be(1)
+      end
+    end
+  end
+
   describe 'function creation and removal' do
     context 'with default setup' do
       it 'has the function present' do

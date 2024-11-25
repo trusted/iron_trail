@@ -56,6 +56,11 @@ module IronTrail
       connection.execute(query)
     end
 
+    def trigger_errors_count
+      stmt = 'SELECT COUNT(*) AS c FROM "irontrail_trigger_errors"'
+      connection.execute(stmt).first['c']
+    end
+
     def collect_all_tables(schema: 'public')
       # query pg_class rather than information schema because this way
       # we can get only regular tables and ignore partitions.
