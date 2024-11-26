@@ -5,6 +5,7 @@ module IronTrail
     DEFAULT_IGNORED_TABLES = %w[
       schema_migrations
       ar_internal_metadata
+      sessions
     ].freeze
 
     include Singleton
