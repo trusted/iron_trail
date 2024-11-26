@@ -13,6 +13,8 @@ Gem::Specification.new do |s|
   s.authors  = ['André Diego Piske']
   s.email    = 'andrepiske@gmail.com'
   s.license  = 'MIT'
+  s.metadata['rubygems_mfa_required'] = 'true'
+  s.required_ruby_version = '>= 3.1.0'
 
   s.files = Dir['lib/**/*', 'LICENSE'].reject { |f| File.directory?(f) }
 
@@ -22,15 +24,13 @@ Gem::Specification.new do |s|
   s.add_dependency 'rails', '>= 7.1'
   s.add_dependency 'request_store', '~> 1.5'
 
-  s.add_development_dependency 'pg_party', '~> 1.8'
   s.add_development_dependency 'appraisal', '~> 2.5'
-
+  s.add_development_dependency 'rubocop', '~> 1.69'
+  s.add_development_dependency 'debug'
+  s.add_development_dependency 'pg_party', '~> 1.8'
   s.add_development_dependency 'rake', '~> 13.2'
   s.add_development_dependency 'rspec-rails', '~> 7.1'
   s.add_development_dependency 'pg', '~> 1.2'
-  # s.add_development_dependency 'ffaker', '~> 2.23'
   s.add_development_dependency 'json', '~> 2.8'
   s.add_development_dependency 'sidekiq', '~> 7.2'
-
-  s.required_ruby_version = '>= 3.1.0'
 end

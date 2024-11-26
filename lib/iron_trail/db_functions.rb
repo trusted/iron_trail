@@ -46,12 +46,12 @@ module IronTrail
         LIMIT 1;
       SQL
 
-      connection.execute(stmt).to_a.count > 0
+      connection.execute(stmt).to_a.count.positive?
     end
 
     def remove_functions(cascade:)
-      query = +"DROP FUNCTION irontrail_log_row"
-      query << " CASCADE" if cascade
+      query = +'DROP FUNCTION irontrail_log_row'
+      query << ' CASCADE' if cascade
 
       connection.execute(query)
     end
@@ -96,7 +96,7 @@ module IronTrail
     end
 
     def disable_tracking_for_table(table_name)
-      # Note: will disable even if table is ignored as this allows
+      # NOTE: will disable even if table is ignored as this allows
       # one to fix ignored tables mnore easily. Since the table is already
       # ignored, it is an expected destructive operation.
 

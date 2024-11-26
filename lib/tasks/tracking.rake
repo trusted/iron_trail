@@ -5,9 +5,9 @@ namespace :iron_trail do
     desc 'Enables tracking for all missing tables.'
     task enable: :environment do
       tables = db_functions.collect_tables_tracking_status[:missing]
-      unless tables.length > 0
-        puts "All tables are being tracked already (no missing tables found)."
-        puts "If you think this is wrong, check your ignored_tables list."
+      unless tables.length.positive?
+        puts 'All tables are being tracked already (no missing tables found).'
+        puts 'If you think this is wrong, check your ignored_tables list.'
         return
       end
 
@@ -28,18 +28,18 @@ namespace :iron_trail do
       end
 
       tables = db_functions.collect_tables_tracking_status[:tracked]
-      if tables.length > 0
-        puts "WARNING: Something went wrong. There are still #{tables.length}" + \
-             " tables being tracked."
+      if tables.length.positive?
+        puts "WARNING: Something went wrong. There are still #{tables.length} " \
+             'tables being tracked.'
       else
-        puts "Done!"
+        puts 'Done!'
       end
     end
 
     desc 'Shows which tables are tracking, missing and ignored.'
     task status: :environment do
       status = db_functions.collect_tables_tracking_status
-      ignored = (IronTrail.config.ignored_tables || [])
+      ignored = IronTrail.config.ignored_tables || []
 
       # We likely want to keep this structure of text untouched as someone
       # could use it to perform automation (e.g. monitoring).
@@ -47,17 +47,17 @@ namespace :iron_trail do
       puts "Missing #{status[:missing].length} tables."
       puts "There are #{ignored.length} ignored tables."
 
-      puts "Tracked tables:"
+      puts 'Tracked tables:'
       status[:tracked].sort.each do |table_name|
         puts "\t#{table_name}"
       end
 
-      puts "Missing tables:"
+      puts 'Missing tables:'
       status[:missing].sort.each do |table_name|
         puts "\t#{table_name}"
       end
 
-      puts "Ignored tables:"
+      puts 'Ignored tables:'
       ignored.sort.each do |table_name|
         puts "\t#{table_name}"
       end
@@ -73,8 +73,8 @@ namespace :iron_trail do
       run_unsafe = %w[true 1 yes].include?(ENV['IRONTRAIL_RUN_UNSAFE'])
       return unless Rails.env.production? && !run_unsafe
 
-      puts "Aborting: operation is dangerous in a production environment. " + \
-            "Override this behavior by setting the IRONTRAIL_RUN_UNSAFE=1 env var."
+      puts 'Aborting: operation is dangerous in a production environment. ' \
+           'Override this behavior by setting the IRONTRAIL_RUN_UNSAFE=1 env var.'
 
       exit(1)
     end

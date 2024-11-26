@@ -10,7 +10,7 @@ class IronTrailSpecMigrator
     Rails::Generators.invoke 'iron_trail:migration', [], behavior: :invoke, destination_root: Rails.root
 
     schema_migration =
-      if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("7.2")
+      if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('7.2')
         ::ActiveRecord::Base.connection.schema_migration
       else
         ::ActiveRecord::SchemaMigration.new(
@@ -24,6 +24,6 @@ class IronTrailSpecMigrator
   private
 
   def dummy_app_migrations_dir
-    Pathname.new(File.expand_path("../dummy_app/db/migrate", __dir__))
+    Pathname.new(File.expand_path('../dummy_app/db/migrate', __dir__))
   end
 end

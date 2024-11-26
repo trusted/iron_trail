@@ -20,7 +20,7 @@ module IronTrail
 
         args.each do |col_name, value|
           scope.where!(
-            ::Arel::Nodes::SqlLiteral.new("rec_delta->#{connection.quote col_name}->>#{Integer(ary_index)}").eq(
+            ::Arel::Nodes::SqlLiteral.new("rec_delta->#{connection.quote(col_name)}->>#{Integer(ary_index)}").eq(
               ::Arel::Nodes::BindParam.new(value)
             )
           )

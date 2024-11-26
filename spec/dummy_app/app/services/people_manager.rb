@@ -10,7 +10,7 @@ class PeopleManager
     'Taylor 110e acoustic guitar'
   ].freeze
 
-  def give_birth_to(first_name, last_name, at:)
+  def give_birth_to(first_name, last_name)
     Person.create!(
       first_name:,
       last_name:

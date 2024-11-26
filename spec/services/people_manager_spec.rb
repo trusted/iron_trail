@@ -5,7 +5,7 @@ RSpec.describe PeopleManager do
 
   describe '#give_birth_to' do
     it 'has a birth history' do
-      person = instance.give_birth_to('John', 'Doe', at: Time.now)
+      person = instance.give_birth_to('John', 'Doe')
 
       expect(person.persisted?).to be true
 
@@ -21,7 +21,7 @@ RSpec.describe PeopleManager do
   describe '#employ_classic_guitars' do
     context 'people with classic guitars' do
       let(:names) { ['Jane Doe', 'Kate Pop', 'Bob Ross'] }
-      let(:people) { names.map { |n| instance.give_birth_to(*(n.split(' ', 2)), at: Time.now) } }
+      let(:people) { names.map { |n| instance.give_birth_to(*(n.split(' ', 2))) } }
 
       # per guitar, one create plus (guitars - 1) updates, plus a final destroy
       let(:expected_change_count) { (described_class::CLASSIC_GUITARS.length + 1) * people.count }

@@ -3,12 +3,7 @@
 module IronTrail
   class Association < ::ActiveRecord::Associations::HasManyAssociation
     def association_scope
-      klass = self.klass
-      reflection = self.reflection
       scope = klass.unscoped
-      owner = self.owner
-
-      chain = [::ActiveRecord::Reflection::RuntimeReflection.new(reflection, self)]
 
       foreign_key = reflection.join_foreign_key
       pk_value = owner._read_attribute(foreign_key)

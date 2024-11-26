@@ -1,11 +1,12 @@
 # frozen_string_literal: true
+
 ENV['DB'] ||= 'postgres'
 require 'fileutils'
 require 'bundler'
 
 Bundler::GemHelper.install_tasks
 
-desc 'Copy the database.DB.yml per ENV[\'DB\']'
+desc "Copy the database.DB.yml per ENV['DB']"
 task :install_database_yml do
   puts "installing database.yml for #{ENV['DB']}"
 
@@ -29,7 +30,7 @@ task :clean do
       if use_docker
         "docker exec -t #{use_docker} dropdb -U postgres --if-exists iron_trail_test"
       else
-        "dropdb --if-exists iron_trail_test > /dev/null 2>&1"
+        'dropdb --if-exists iron_trail_test > /dev/null 2>&1'
       end
 
     system(command)
@@ -43,7 +44,7 @@ task :clean do
     base_name = File.basename(full_path)
     next unless base_name =~ /^\d{14}_create_irontrail_.+\.rb$/
 
-    FileUtils.rm full_path
+    FileUtils.rm(full_path)
   end
 end
 
@@ -59,7 +60,7 @@ task :create_db do
       if use_docker
         "docker exec -t #{use_docker} createdb -U postgres iron_trail_test"
       else
-        "createdb iron_trail_test > /dev/null 2>&1"
+        'createdb iron_trail_test > /dev/null 2>&1'
       end
 
     system(command)

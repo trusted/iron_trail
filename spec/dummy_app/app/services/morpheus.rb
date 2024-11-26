@@ -11,5 +11,4 @@ class Morpheus
 
   def guitar_hero
   end
-
 end

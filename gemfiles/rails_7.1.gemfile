@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-gem "debug"
+gem "rubocop", "~> 1.69", require: false
 gem "rails", "~> 7.1.5"
 
 gemspec path: "../"

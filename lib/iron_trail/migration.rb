@@ -2,7 +2,7 @@
 
 module IronTrail
   module Migration
-    def method_missing(method, *args)
+    def method_missing(method, *args) # rubocop:disable Style/MissingRespondToMissing
       running_from_schema = is_a?(ActiveRecord::Schema) ||
         (defined?(ActiveRecord::Schema::Definition) && is_a?(ActiveRecord::Schema::Definition))
 
@@ -11,9 +11,7 @@ module IronTrail
       return result unless IronTrail.enabled? && method == :create_table
 
       start_at_version = IronTrail.config.track_migrations_starting_at_version
-      if !running_from_schema && start_at_version
-        return result if self.version < Integer(start_at_version)
-      end
+      return result if !running_from_schema && start_at_version && version < (Integer(start_at_version))
 
       table_name = args.first.to_s
       return result if IronTrail.ignore_table?(table_name)
@@ -29,7 +27,10 @@ module IronTrail
       if db_fun.function_present?
         db_fun.enable_tracking_for_table(table_name)
       else
-        Rails.logger.warn("IronTrail will not create trigger for table #{table_name} because the trigger function does not exist in the database.")
+        Rails.logger.warn(
+          "IronTrail will not create trigger for table #{table_name} " \
+          'because the trigger function does not exist in the database.'
+        )
       end
 
       result

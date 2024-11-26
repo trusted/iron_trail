@@ -28,7 +28,7 @@ module IronTrail
     # directly.
     # It is possible to call Array#clear to empty the array and remove default
     # should that be desired.
-    def ignored_tables=(v)
+    def ignored_tables=(_v)
       raise 'Overwriting ignored_tables is not allow. Instead, add or remove to it explicitly.'
     end
   end

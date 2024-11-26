@@ -2,13 +2,13 @@
 
 module IronTrail
   class Reflection < ::ActiveRecord::Reflection::AssociationReflection
-    def collection?; true; end
+    def collection? = true
 
     def association_class
       ::IronTrail::Association
     end
 
-    def join_scope(table, foreign_table, foreign_klass)
+    def join_scope(table, foreign_table, _foreign_klass)
       scope = klass_join_scope(table, nil)
 
       foreign_key_column_names = Array(join_foreign_key)
@@ -26,7 +26,7 @@ module IronTrail
           ::Arel::Nodes::As.new(
             foreign_table[foreign_key_column_name],
             ::Arel::Nodes::SqlLiteral.new('text')
-          ),
+          )
         ]
       )
 

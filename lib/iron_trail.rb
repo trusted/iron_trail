@@ -29,9 +29,9 @@ module IronTrail
 
   module SchemaDumper
     def trailer(stream)
-      stream.print "\n  IronTrail.post_schema_load(self, missing_tracking: @irontrail_missing_track)\n"
+      stream.print("\n  IronTrail.post_schema_load(self, missing_tracking: @irontrail_missing_track)\n")
 
-      super(stream)
+      super
     end
   end
 
@@ -87,11 +87,9 @@ module IronTrail
     end
 
     def_delegators :store_instance,
-                   :store_metadata,
-                   :merge_metadata,
-                   :current_metadata
-
-
+      :store_metadata,
+      :merge_metadata,
+      :current_metadata
   end
 end
 

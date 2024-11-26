@@ -8,7 +8,7 @@ module IronTrail
   # own AR reflection and association classes.
   module Model
     def self.included(mod)
-      mod.include ClassMethods
+      mod.include(ClassMethods)
 
       ::ActiveRecord::Reflection.add_reflection(
         mod,
