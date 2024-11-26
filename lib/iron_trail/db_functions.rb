@@ -95,6 +95,19 @@ module IronTrail
       }
     end
 
+    def disable_tracking_for_table(table_name)
+      # Note: will disable even if table is ignored as this allows
+      # one to fix ignored tables mnore easily. Since the table is already
+      # ignored, it is an expected destructive operation.
+
+      stmt = <<~SQL
+        DROP TRIGGER "iron_trail_log_changes" ON
+        #{connection.quote_table_name(table_name)}
+      SQL
+
+      connection.execute(stmt)
+    end
+
     def enable_tracking_for_table(table_name)
       return false if IronTrail.ignore_table?(table_name)
 
