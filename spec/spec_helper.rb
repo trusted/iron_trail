@@ -8,6 +8,10 @@ RSpec.configure do |config|
   config.order = :random
   config.example_status_persistence_file_path = '.rspec_results'
   Kernel.srand config.seed
+
+  config.before do
+    RequestStore.clear!
+  end
 end
 
 ########################################################################
