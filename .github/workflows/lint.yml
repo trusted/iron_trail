@@ -1,0 +1,28 @@
+name: lint
+on:
+  push: {}
+    # branches:
+    # - main
+  pull_request:
+    types:
+    - opened
+    - reopened
+    - synchronize
+
+permissions:
+  contents: read
+
+jobs:
+  lint_rubocop:
+    name: Rubocop
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.1'
+        bundler-cache: true
+    - name: Run rubocop
+      run: bundle exec rubocop
