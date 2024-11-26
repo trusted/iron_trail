@@ -1,17 +1,7 @@
 # frozen_string_literal: true
 
 module IronTrail
-  class SidekiqInjector
-    attr_accessor :config
-
-    def self.install_sidekiq_middleware
-      Sidekiq.configure_server do |config|
-        config.server_middleware do |chain|
-          chain.add ::IronTrail::SidekiqInjector
-        end
-      end
-    end
-
+  class SidekiqMiddleware
     def call(job, _job_hash, queue)
       md = {
         jid: job.jid,
