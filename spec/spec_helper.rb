@@ -26,8 +26,16 @@ require 'action_controller/railtie'
 require 'iron_trail'
 require 'pg_party'
 require 'debug'
-# require 'ffaker'
 require 'rspec/rails'
+
+require 'sidekiq'
+require 'sidekiq/testing'
+require 'iron_trail/sidekiq'
+
+Sidekiq::Testing.fake!
+Sidekiq::Testing.server_middleware do |chain|
+  chain.add IronTrail::SidekiqMiddleware
+end
 
 require File.expand_path('dummy_app/config/environment', __dir__)
 

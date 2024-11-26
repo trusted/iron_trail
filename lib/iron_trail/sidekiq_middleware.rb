@@ -9,7 +9,8 @@ module IronTrail
         queue:
       }
 
-      md[:bid] = job.bid if job.bid.present?
+      # Job batch ID. Requires sidekiq-pro
+      md[:bid] = job.bid if job.respond_to?(:bid) && job.bid.present?
 
       IronTrail.store_metadata(:job, md)
 
