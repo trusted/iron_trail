@@ -12,20 +12,28 @@ require 'iron_trail/migration'
 
 require 'iron_trail/metadata_store'
 require 'iron_trail/query_transformer'
-# require 'iron_trail/sidekiq_injector'
 
 require 'iron_trail/association'
 require 'iron_trail/reflection'
 require 'iron_trail/model'
 require 'iron_trail/change_model_concern'
 
+require 'iron_trail/railtie'
+
 module IronTrail
-  # These tables are owned by IronTrail and will always be ignored, that is,
-  # they will never be tracked for changes.
+  # These tables are owned by IronTrail and will be in the default ignore list
   OWN_TABLES = %w[
     irontrail_trigger_errors
     irontrail_changes
   ].freeze
+
+  module SchemaDumper
+    def trailer(stream)
+      stream.print "\n  IronTrail.post_schema_load(self, missing_tracking: @irontrail_missing_track)\n"
+
+      super(stream)
+    end
+  end
 
   class << self
     extend Forwardable
@@ -66,12 +74,12 @@ module IronTrail
       end
     end
 
-    def start
+    def setup_active_record
+      ActiveRecord::Migration.prepend(IronTrail::Migration)
+      ActiveRecord::SchemaDumper.prepend(IronTrail::SchemaDumper)
+
       @query_transformer = QueryTransformer.new
-
       @query_transformer.setup_active_record
-
-      # IronTrail::SidekiqInjector.install_sidekiq_middleware
     end
 
     def store_instance
@@ -87,19 +95,6 @@ module IronTrail
   end
 end
 
-module IronTrail
-  module SchemaDumper
-    def trailer(stream)
-      stream.print "\n  IronTrail.post_schema_load(self, missing_tracking: @irontrail_missing_track)\n"
-
-      super(stream)
-    end
-  end
-end
-
 ActiveSupport.on_load(:active_record) do
-  ActiveRecord::Migration.prepend(IronTrail::Migration)
-  ActiveRecord::SchemaDumper.prepend(IronTrail::SchemaDumper)
-
-  IronTrail.start
+  IronTrail.setup_active_record
 end

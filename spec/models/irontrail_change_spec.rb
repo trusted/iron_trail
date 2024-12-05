@@ -20,6 +20,39 @@ RSpec.describe IrontrailChange do
       expect(IrontrailChange.count).to be >= 9
     end
 
+    describe 'where_object_changes_from' do
+      before do
+        person.update!(first_name: 'Michael')
+        person.update!(first_name: 'Johnny', last_name: 'Tod')
+        person.update!(first_name: 'Michael', favorite_planet: 'Saturn')
+        person.update!(last_name: 'Cash')
+      end
+
+      it 'finds the expected records' do
+        scope = person.iron_trails.where_object_changes_from(first_name: 'Michael')
+        expect(scope.count).to eq(1)
+
+        expect(scope.first.rec_old).to include('first_name' => 'Michael', 'last_name' => 'Klarkey')
+        expect(scope.first.rec_new).to include('first_name' => 'Johnny', 'last_name' => 'Tod')
+        expect(scope.first.rec_delta).to eq({
+          'first_name' => ['Michael', 'Johnny'],
+          'last_name' => ['Klarkey', 'Tod']
+        })
+
+        scope = person.iron_trails.where_object_changes_from(last_name: 'Tod')
+        expect(scope.count).to eq(1)
+
+        expect(scope.first.rec_old).to include('first_name' => 'Michael', 'last_name' => 'Tod')
+        expect(scope.first.rec_new).to include('first_name' => 'Michael', 'last_name' => 'Cash')
+        expect(scope.first.rec_delta).to eq({
+          'last_name' => ['Tod', 'Cash']
+        })
+
+        scope = person.iron_trails.where_object_changes_from(last_name: 'Cash')
+        expect(scope.count).to eq(0)
+      end
+    end
+
     describe 'where_object_changes_to' do
       before do
         person.update!(first_name: 'Michael')

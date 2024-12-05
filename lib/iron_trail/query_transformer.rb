@@ -4,6 +4,8 @@ module IronTrail
   class QueryTransformer
     METADATA_MAX_LENGTH = 1048576 # 1 MiB
 
+    attr_reader :transformer_proc
+
     def initialize
       @transformer_proc = create_query_transformer_proc
     end
@@ -22,7 +24,8 @@ module IronTrail
         metadata = JSON.dump(current_metadata)
 
         if metadata.length > METADATA_MAX_LENGTH
-          # TODO: how to properly issue a warning here?
+          Rails.logger.warn("IronTrail metadata is longer than maximum length! #{metadata.length} > #{METADATA_MAX_LENGTH}")
+          next query
         end
 
         safe_md = metadata.gsub('*/', '\\u002a\\u002f')

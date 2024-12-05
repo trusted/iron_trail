@@ -53,6 +53,8 @@ RSpec.describe Guitar do
         yellowz = guitars.uniq.first
         trails = yellowz.iron_trails.sort_by(&:id)
 
+        expect(trails[0].id).not_to be_nil
+
         expect(trails[0].rec_old).to be_nil
         expect(trails[0].rec_new).to eq(git.as_json.merge('description' => 'Yellowz'))
         expect(trails[1].rec_old).to eq(git.as_json.merge('description' => 'Yellowz'))
@@ -65,6 +67,8 @@ RSpec.describe Guitar do
 
         yellowz = guitars.uniq.first
         trails = yellowz.iron_trails.sort_by(&:id)
+
+        expect(trails[0].id).not_to be_nil
 
         expect(trails[0].rec_old).to be_nil
         expect(trails[0].rec_new).to eq(git.as_json.merge('description' => 'Yellowz'))
@@ -92,6 +96,7 @@ RSpec.describe Guitar do
 
         trails_other = other.iron_trails.sort_by(&:id)
         expect(trails_other.length).to eq(3)
+
         expect(trails_other[0].rec_old).to be_nil
         expect(trails_other[0].rec_new['id']).to eq(other.id)
         expect(trails_other[1].rec_old['id']).to eq(other.id)

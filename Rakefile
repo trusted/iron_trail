@@ -19,12 +19,20 @@ end
 
 desc 'Delete generated files and databases'
 task :clean do
+  use_docker = ENV['IRONTRAIL_TEST_DOCKER']
   db = ENV.fetch('DB', 'postgres')
   puts "Will drop #{db} database"
 
   case db
   when 'postgres'
-    system('dropdb --if-exists iron_trail_test > /dev/null 2>&1')
+    command =
+      if use_docker
+        "docker exec -t #{use_docker} dropdb -U postgres --if-exists iron_trail_test"
+      else
+        "dropdb --if-exists iron_trail_test > /dev/null 2>&1"
+      end
+
+    system(command)
   else
     raise "Don't know DB '#{db}'"
   end
@@ -41,12 +49,20 @@ end
 
 desc 'Create the database.'
 task :create_db do
+  use_docker = ENV['IRONTRAIL_TEST_DOCKER']
   db = ENV.fetch('DB', 'postgres')
   puts "Will create #{db} database"
 
   case db
   when 'postgres'
-    system "createdb iron_trail_test"
+    command =
+      if use_docker
+        "docker exec -t #{use_docker} createdb -U postgres iron_trail_test"
+      else
+        "createdb iron_trail_test > /dev/null 2>&1"
+      end
+
+    system(command)
   else
     raise "Don't know DB '#{db}'"
   end
