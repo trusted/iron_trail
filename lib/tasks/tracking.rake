@@ -35,6 +35,19 @@ namespace :iron_trail do
       end
     end
 
+    desc 'Disabled tracking for any ignored table that might still have the trigger enabled.'
+    task disable_on_ignored: :environment do
+      affected_tables = IronTrail::RakeHelper.db_functions.disable_for_all_ignored_tables
+
+      unless affected_tables.empty?
+        puts "Removed tracking from #{affected_tables.length} tables:"
+
+        affected_tables.each do |table_name|
+          puts "\t#{table_name}"
+        end
+      end
+    end
+
     desc 'Disables tracking all tables. Dangerous!'
     task disable: :environment do
       IronTrail::RakeHelper.abort_when_unsafe!
