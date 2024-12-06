@@ -60,7 +60,8 @@ jobs:
         POSTGRES_HOST: localhost
         POSTGRES_PORT: 5432
     - name: Run specs
-      run: bundle exec rake install_database_yml spec
+      run:
+        bundle exec rake install_database_yml spec && bundle exec rake testing_spec
       env:
         BACKTRACE: 1
         BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
