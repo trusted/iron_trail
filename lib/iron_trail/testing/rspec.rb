@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+if ENV['RAILS_ENV'] == 'production'
+  raise 'This file should not be required in production. ' \
+    'Change the RAILS_ENV env var temporarily to override this.'
+end
+
 require 'iron_trail'
 
 module IronTrail

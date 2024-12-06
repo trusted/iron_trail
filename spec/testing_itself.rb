@@ -12,7 +12,6 @@ RSpec.describe 'lib/iron_trail/testing/rspec.rb' do
     person.update!(first_name: 'Jane')
   end
 
-
   describe 'IronTrail::Testing#with_iron_trail' do
     context 'when IronTrail is disabled but we enable it for a while' do
       it 'tracks only while enabled' do
