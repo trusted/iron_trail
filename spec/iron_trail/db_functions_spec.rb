@@ -117,6 +117,24 @@ RSpec.describe IronTrail::DbFunctions do
     end
   end
 
+  describe '#disable_for_all_ignored_tables' do
+    subject(:disable_it!) do
+      instance.disable_for_all_ignored_tables
+    end
+
+    context 'when no ignored tables are tracked' do
+      it 'returns an empty array' do
+        expect(disable_it!).to eq([])
+      end
+
+      it 'does not call disable_tracking_for_table' do
+        expect(instance).to receive(:disable_tracking_for_table).exactly(0).times
+
+        disable_it!
+      end
+    end
+  end
+
   describe 'function creation and removal' do
     context 'with default setup' do
       it 'has the function present' do
