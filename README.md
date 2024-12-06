@@ -79,7 +79,7 @@ IronTrail::Testing.enable! # to have it enabled by default in specs
 IronTrail::Testing.disable! # to have it disabled by default in specs
 ```
 
-You you don't make it explicit, IronTrail will be enabled by default, which will
+You don't make it explicit, IronTrail will be enabled by default, which will
 likely impact your test suite performance slightly.
 
 In case you disable it by default, you can enable it per rspec context with:
