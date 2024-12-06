@@ -70,6 +70,32 @@ RSpec.configure do |config|
 end
 ```
 
+You'll likely also want to require [lib/iron_trail/testing/rspec.rb](lib/iron_trail/testing/rspec.rb)
+in your `rails_helper.rb`, then explicitly either disable or enable IronTrail in tests:
+
+```ruby
+require 'iron_trail/testing/rspec'
+IronTrail::Testing.enable! # to have it enabled by default in specs
+IronTrail::Testing.disable! # to have it disabled by default in specs
+```
+
+You don't make it explicit, IronTrail will be enabled by default, which will
+likely impact your test suite performance slightly.
+
+In case you disable it by default, you can enable it per rspec context with:
+
+```ruby
+describe 'in a "describe" block', iron_trail: true do
+  it 'or also in an "it" block', iron_trail: true do
+    # ...
+  end
+end
+```
+
+Enabling/disabling IronTrail in specs works by replacing the trigger function in Postgres
+with a dummy no-op function or with the real function and it won't add or drop triggers from
+any tables.
+
 ## Rake tasks
 
 IronTrail comes with a few handy rake tasks you can use in your dev, test and
