@@ -12,19 +12,42 @@ RSpec.describe 'lib/iron_trail/testing/rspec.rb' do
     person.update!(first_name: 'Jane')
   end
 
-  context 'with IronTrail disabled' do
-    it 'does not track anything' do
-      do_some_changes!
 
-      expect(person.reload.iron_trails.length).to be(0)
+  describe 'IronTrail::Testing#with_iron_trail' do
+    context 'when IronTrail is disabled but we enable it for a while' do
+      it 'tracks only while enabled' do
+        person.update!(first_name: 'Jim')
+
+        expect(person.reload.iron_trails.length).to be(0)
+
+        IronTrail::Testing.with_iron_trail(want_enabled: true) do
+          person.update!(first_name: 'Jane')
+        end
+
+        expect(person.reload.iron_trails.length).to be(1)
+
+        person.update!(first_name: 'Joe')
+
+        expect(person.reload.iron_trails.length).to be(1)
+      end
     end
   end
 
-  context 'with IronTrail enabled through the helper', iron_trail: true do
-    it 'does not track anything' do
-      do_some_changes!
+  describe 'rspec helpers' do
+    context 'with IronTrail disabled' do
+      it 'does not track anything' do
+        do_some_changes!
 
-      expect(person.reload.iron_trails.length).to be(3)
+        expect(person.reload.iron_trails.length).to be(0)
+      end
+    end
+
+    context 'with IronTrail enabled through the helper', iron_trail: true do
+      it 'does not track anything' do
+        do_some_changes!
+
+        expect(person.reload.iron_trails.length).to be(3)
+      end
     end
   end
 end
