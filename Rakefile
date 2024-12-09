@@ -75,4 +75,12 @@ require 'rspec/core/rake_task'
 task(:spec).clear
 RSpec::Core::RakeTask.new(:spec)
 
-task default: %i[prepare spec]
+# Loading the testing/rspec file will affect RSpec globally. Because of that,
+# we want to test it in a separate scope. We could also always require it,
+# but that wouldn't be true in a real rails app and could make all tests
+# farther apart from reality, thus less reliable.
+RSpec::Core::RakeTask.new(:testing_spec).tap do |task|
+  task.pattern = 'spec/testing_itself.rb'
+end
+
+task default: %i[prepare spec testing_spec]
