@@ -83,6 +83,18 @@ module IronTrail
       end
     end
 
+    def disable_for_all_ignored_tables
+      affected_tables = collect_tracked_table_names & (
+        OWN_TABLES + (IronTrail.config.ignored_tables || [])
+      )
+
+      affected_tables.each do |table_name|
+        disable_tracking_for_table(table_name)
+      end
+
+      affected_tables
+    end
+
     def collect_tables_tracking_status
       ignored_tables = OWN_TABLES + (IronTrail.config.ignored_tables || [])
 
