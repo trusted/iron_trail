@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added means to disable tracking ignored tables
+- Allow enabling/disabling IronTrail in rspec
 
 ## 0.0.1 - 2024-11-26
 
