@@ -43,13 +43,13 @@ require_relative 'support/iron_trail_spec_migrator'
 ::IronTrailSpecMigrator.new.migrate
 
 Time.now.tap do |date|
-  partition_name = "irontrail_chgn_#{date.strftime('%Y%m')}"
+  partition_name = "irontrail_chgn_infinite"
   next if ActiveRecord::Base.connection.table_exists?(partition_name)
 
   IrontrailChange.create_partition(
     name: partition_name,
-    start_range: date,
-    end_range: date.next_month
+    start_range: Time.parse('2000-01-01T00:00:00Z'),
+    end_range: Time.parse('2100-01-01T00:00:00Z')
   )
 end
 
