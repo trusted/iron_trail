@@ -3,10 +3,10 @@
 module IronTrail
   module Reifier
     def self.reify(trail)
-      klass = model_from_table_name(trail.rec_table)
+      source_attributes = (trail.delete_operation? ? trail.rec_old : trail.rec_new)
+      klass = model_from_table_name(trail.rec_table, source_attributes['type'])
 
       record = klass.where(id: trail.rec_id).first || klass.new
-      source_attributes = (trail.operation == 'd' ? trail.rec_old : trail.rec_new)
 
       source_attributes.each do |name, value|
         if record.has_attribute?(name)
@@ -26,13 +26,27 @@ module IronTrail
       record
     end
 
-    def self.model_from_table_name(table_name)
-      # TODO: this won't work with STI models.
-      index = ActiveRecord::Base.descendants.reject(&:abstract_class).index_by(&:table_name)
+    def self.model_from_table_name(table_name, sti_type=nil)
+      index = ActiveRecord::Base.descendants.reject(&:abstract_class).chunk(&:table_name).to_h do |key, val|
+        v = \
+          if val.length == 1
+            val[0]
+          else
+            val.to_h { |k| [k.to_s, k] }
+          end
+
+        [key, v]
+      end
+
       klass = index[table_name]
       raise "Cannot infer model from table named '#{table_name}'" unless klass
 
-      klass
+      return klass unless klass.is_a?(Hash)
+      klass = klass[sti_type]
+
+      return klass if klass
+
+      raise "Cannot infer STI model for table #{table_name} and type '#{sti_type}'"
     end
   end
 end

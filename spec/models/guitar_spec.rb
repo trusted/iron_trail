@@ -3,6 +3,38 @@
 RSpec.describe Guitar do
   let(:person) { Person.create!(first_name: 'Arthur', last_name: 'Schopenhauer') }
 
+  describe 'IronTrail::ChangeModelConcern' do
+    describe 'helper methods' do
+      before do
+        person.update!(first_name: 'Joe')
+        person.update!(first_name: 'Joey')
+        person.destroy!
+      end
+
+      it 'correctly classifies operations' do
+        expect(person.iron_trails.length).to eq(4)
+        expect(person.iron_trails.inserts.length).to eq(1)
+        expect(person.iron_trails.updates.length).to eq(2)
+        expect(person.iron_trails.deletes.length).to eq(1)
+
+        expect(person.iron_trails.inserts[0].insert_operation?).to be(true)
+        expect(person.iron_trails.inserts[0].update_operation?).to be(false)
+        expect(person.iron_trails.inserts[0].delete_operation?).to be(false)
+
+        expect(person.iron_trails.updates[0].insert_operation?).to be(false)
+        expect(person.iron_trails.updates[0].update_operation?).to be(true)
+        expect(person.iron_trails.updates[0].delete_operation?).to be(false)
+        expect(person.iron_trails.updates[1].insert_operation?).to be(false)
+        expect(person.iron_trails.updates[1].update_operation?).to be(true)
+        expect(person.iron_trails.updates[1].delete_operation?).to be(false)
+
+        expect(person.iron_trails.deletes[0].insert_operation?).to be(false)
+        expect(person.iron_trails.deletes[0].update_operation?).to be(false)
+        expect(person.iron_trails.deletes[0].delete_operation?).to be(true)
+      end
+    end
+  end
+
   describe 'iron_trails.version_at' do
     let(:guitar) { Guitar.create!(description: 'the guitar', person:) }
 
