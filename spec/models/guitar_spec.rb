@@ -29,11 +29,17 @@ RSpec.describe Guitar do
       guitar.reload
     end
 
-    it 'recovers the correct trail' do
-      trail = guitar.iron_trails.version_at('2005-05-08T14:00:03Z')
+    it 'recovers the correct record' do
+      git = guitar.iron_trails.version_at('2005-05-08T14:00:03Z')
 
-      expect(trail).to be_a(Guitar)
-      expect(trail.description).to eq('guitar 2')
+      expect(git).to be_a(Guitar)
+      expect(git.id).to eq(guitar.id)
+      expect(git.description).to eq('guitar 2')
+    end
+
+    it 'has no ghost reified attributes' do
+      git = guitar.iron_trails.version_at('2005-05-08T14:00:03Z')
+      expect(git.irontrail_reified_ghost_attributes).to be_nil
     end
 
     context 'when a version has attributes that dont exist anymore' do
@@ -60,6 +66,7 @@ RSpec.describe Guitar do
 
         it 'contains ghost reified attributes' do
           expect(git).to be_a(Guitar)
+          expect(git.id).to eq(guitar.id)
           expect(git.description).to eq('guitar 3')
           expect(git.irontrail_reified_ghost_attributes).to eq({ foo: 'ghosted!' }.with_indifferent_access)
         end
@@ -88,8 +95,9 @@ RSpec.describe Guitar do
       describe 'on time' do
         let(:git) { guitar.iron_trails.version_at(destroy_time) }
 
-        it 'recovers the correct trail' do
+        it 'recovers the correct record' do
           expect(git).to be_a(Guitar)
+          expect(git.id).to eq(guitar.id)
           expect(git.description).to eq('guitar 4')
         end
       end
@@ -97,8 +105,9 @@ RSpec.describe Guitar do
       describe 'a little late' do
         let(:git) { guitar.iron_trails.version_at(Time.parse(destroy_time) + 5) }
 
-        it 'recovers the correct trail' do
+        it 'recovers the correct record' do
           expect(git).to be_a(Guitar)
+          expect(git.id).to eq(guitar.id)
           expect(git.description).to eq('guitar 4')
         end
       end
