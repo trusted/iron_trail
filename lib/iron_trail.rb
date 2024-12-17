@@ -18,6 +18,7 @@ require 'iron_trail/reflection'
 require 'iron_trail/model'
 require 'iron_trail/change_model_concern'
 require 'iron_trail/collection_proxy_mixin'
+require 'iron_trail/reifier'
 
 require 'iron_trail/railtie'
 
