@@ -35,7 +35,7 @@ RSpec.describe Guitar do
     end
   end
 
-  describe 'iron_trails.version_at' do
+  describe 'iron_trails.travel_to' do
     let(:guitar) { Guitar.create!(description: 'the guitar', person:) }
 
     before do
@@ -62,7 +62,7 @@ RSpec.describe Guitar do
     end
 
     it 'recovers the correct record' do
-      git = guitar.iron_trails.version_at('2005-05-08T14:00:03Z')
+      git = guitar.iron_trails.travel_to('2005-05-08T14:00:03Z')
 
       expect(git).to be_a(Guitar)
       expect(git.id).to eq(guitar.id)
@@ -70,7 +70,7 @@ RSpec.describe Guitar do
     end
 
     it 'has no ghost reified attributes' do
-      git = guitar.iron_trails.version_at('2005-05-08T14:00:03Z')
+      git = guitar.iron_trails.travel_to('2005-05-08T14:00:03Z')
       expect(git.irontrail_reified_ghost_attributes).to be_nil
     end
 
@@ -94,7 +94,7 @@ RSpec.describe Guitar do
       end
 
       describe 'on time' do
-        let(:git) { guitar.iron_trails.version_at('2005-05-08T14:00:15Z') }
+        let(:git) { guitar.iron_trails.travel_to('2005-05-08T14:00:15Z') }
 
         it 'contains ghost reified attributes' do
           expect(git).to be_a(Guitar)
@@ -105,7 +105,7 @@ RSpec.describe Guitar do
       end
 
       describe 'a little late' do
-        let(:git) { guitar.iron_trails.version_at('2005-05-08T14:00:17Z') }
+        let(:git) { guitar.iron_trails.travel_to('2005-05-08T14:00:17Z') }
 
         it 'contains ghost reified attributes' do
           expect(git).to be_a(Guitar)
@@ -125,7 +125,7 @@ RSpec.describe Guitar do
       end
 
       describe 'on time' do
-        let(:git) { guitar.iron_trails.version_at(destroy_time) }
+        let(:git) { guitar.iron_trails.travel_to(destroy_time) }
 
         it 'recovers the correct record' do
           expect(git).to be_a(Guitar)
@@ -135,7 +135,7 @@ RSpec.describe Guitar do
       end
 
       describe 'a little late' do
-        let(:git) { guitar.iron_trails.version_at(Time.parse(destroy_time) + 5) }
+        let(:git) { guitar.iron_trails.travel_to(Time.parse(destroy_time) + 5) }
 
         it 'recovers the correct record' do
           expect(git).to be_a(Guitar)

@@ -2,7 +2,7 @@
 
 module IronTrail
   module CollectionProxyMixin
-    def version_at(ts)
+    def travel_to(ts)
       arel_table = arel.ast.cores.first.source.left
 
       change_record = scope
