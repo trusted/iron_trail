@@ -1,19 +1,6 @@
 # frozen_string_literal: true
 
 module IronTrail
-  module CollectionProxyMixin
-    def version_at(ts)
-      arel_table = arel.ast.cores.first.source.left
-
-      change_record = scope
-        .order(arel_table[:created_at] => :desc)
-        .where(arel_table[:created_at].lteq(ts))
-        .first
-
-      change_record.reify
-    end
-  end
-
   class Association < ::ActiveRecord::Associations::HasManyAssociation
     def association_scope
       klass = self.klass
@@ -33,10 +20,10 @@ module IronTrail
     end
 
     def reader
-      rdr = super
-      rdr.extend(::IronTrail::CollectionProxyMixin)
+      res = super
+      res.extend(CollectionProxyMixin)
 
-      rdr
+      res
     end
 
     def find_target
