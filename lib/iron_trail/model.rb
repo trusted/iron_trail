@@ -9,6 +9,7 @@ module IronTrail
   module Model
     def self.included(mod)
       mod.include ClassMethods
+      mod.attr_reader :irontrail_reified_ghost_attributes
 
       ::ActiveRecord::Reflection.add_reflection(
         mod,

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Now able to travel back in time with `model.iron_trails.travel_to(some_timestamp)`
+- Add ability to "reify" a trail, that is, to restore the object to what it was in a given trail
+- Added helper methods to `IronTrail::ChangeModelConcern`: `insert_operation?`, `update_operation?`, `delete_operation?`
+- Added helpers to filter/scope trails: `model.iron_trails.inserts` (also '.deletes' and `.updates`)
+- Full STI (Single Table Inheritance) support now added with proper tests
+
 ## 0.0.2 - 2024-12-09
 
 ### Added

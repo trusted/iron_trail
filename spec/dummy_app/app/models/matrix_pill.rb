@@ -2,4 +2,5 @@
 
 # An STI model
 class MatrixPill < ApplicationRecord
+  include IronTrail::Model
 end

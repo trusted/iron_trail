@@ -4,12 +4,8 @@
 class Morpheus
   def just_like_in_the_movie
     {
-      red: RedPill.create!,
-      blue: PillBlue.create!
+      red: RedPill.create!(pill_size: 10),
+      blue: PillBlue.create!(pill_size: 11)
     }
   end
-
-  def guitar_hero
-  end
-
 end

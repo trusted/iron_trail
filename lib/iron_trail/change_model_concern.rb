@@ -4,6 +4,14 @@ module IronTrail
   module ChangeModelConcern
     extend ::ActiveSupport::Concern
 
+    def reify
+      Reifier.reify(self)
+    end
+
+    def insert_operation? = (operation == 'i')
+    def update_operation? = (operation == 'u')
+    def delete_operation? = (operation == 'd')
+
     module ClassMethods
       def where_object_changes_to(args = {})
         _where_object_changes(1, args)

@@ -19,6 +19,13 @@ module IronTrail
       scope
     end
 
+    def reader
+      res = super
+      res.extend(CollectionProxyMixin)
+
+      res
+    end
+
     def find_target
       scope.to_a
     end
