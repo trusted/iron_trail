@@ -7,9 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.0.4 - 2024-12-30
+
+### Added
+
+- Improved developer experience, added CONTRIBUTING.md docs
+- Publish gem using a github workflow
+
 ### Fixed
 
 - `ActiveRecord::Reflection#reflect_on_all_associations` would not work for models having IronTrail enabled
+
+## 0.0.3 - 2024-12-26
 
 ### Added
 
