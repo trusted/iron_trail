@@ -4,6 +4,8 @@ module IronTrail
   class Reflection < ::ActiveRecord::Reflection::AssociationReflection
     def collection?; true; end
 
+    def macro; :has_iron_trails; end
+
     def association_class
       ::IronTrail::Association
     end
