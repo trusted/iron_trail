@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.0.4 - 2024-12-30
+
+### Added
+
+- Improved developer experience, added CONTRIBUTING.md docs
+- Publish gem using a github workflow
+
+## 0.0.3 - 2024-12-26
+
 ### Added
 
 - Now able to travel back in time with `model.iron_trails.travel_to(some_timestamp)`
