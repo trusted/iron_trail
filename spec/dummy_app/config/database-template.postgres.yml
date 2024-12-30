@@ -3,6 +3,6 @@ test: &test
   protocol: TCP
   database: <%= ENV.fetch('IRONTRAIL_CI_DATABASE', 'iron_trail_test') %>
   username: <%= ENV.fetch('IRONTRAIL_CI_DB_USER', 'postgres') %>
-  password: <%= ENV.fetch('IRONTRAIL_CI_DB_PASSWORD', '') %>
-  host: <%= ENV.fetch('IRONTRAIL_CI_DB_HOST', 'localhost') %>
-  port: <%= ENV.fetch('IRONTRAIL_CI_DB_PORT', 5432) %>
+  password: <%= ENV.fetch('IRONTRAIL_CI_DB_PASSWORD', 'safe') %>
+  host: <%= ENV.fetch('IRONTRAIL_CI_DB_HOST', '127.0.0.1') %>
+  port: <%= ENV.fetch('IRONTRAIL_CI_DB_PORT', 6000) %>
