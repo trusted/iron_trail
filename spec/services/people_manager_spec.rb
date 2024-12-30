@@ -15,7 +15,26 @@ RSpec.describe PeopleManager do
       record_new = JSON.parse(results.first['rec_new'])
       expect(record_new).to eq(person.as_json)
     end
+  end
 
+  describe 'rails model reflection' do
+    it 'lists the IronTrail reflection in a model' do
+      all_reflections = Person.reflect_on_all_associations
+      only_irontrail = all_reflections.select { |refl| IronTrail::Reflection === refl }
+
+      expect(all_reflections.length).to eq(3)
+      expect(only_irontrail.length).to eq(1)
+    end
+
+    it 'is able to list specific reflections' do
+      belongs_to_reflections = Person.reflect_on_all_associations(:belongs_to)
+      expect(belongs_to_reflections.length).to eq(1)
+    end
+
+    it 'is able to list only IronTrail reflections' do
+      irontrail_reflections = Person.reflect_on_all_associations(:has_iron_trails)
+      expect(irontrail_reflections.length).to eq(1)
+    end
   end
 
   describe '#employ_classic_guitars' do
