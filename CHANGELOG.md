@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `ActiveRecord::Reflection#reflect_on_all_associations` would not work for models having IronTrail enabled
+
 ### Added
 
 - Now able to travel back in time with `model.iron_trails.travel_to(some_timestamp)`
