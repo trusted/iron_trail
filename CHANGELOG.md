@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.0.5 - 2025-01-06
+
+### Fixed
+
+- `#travel_to` now returns nil when no versions are found in the specified timestamp.
+
 ## 0.0.4 - 2024-12-30
 
 ### Added
