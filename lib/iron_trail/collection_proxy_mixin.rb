@@ -10,7 +10,7 @@ module IronTrail
         .where(arel_table[:created_at].lteq(ts))
         .first
 
-      change_record.reify
+      change_record&.reify
     end
   end
 end
