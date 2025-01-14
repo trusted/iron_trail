@@ -33,8 +33,8 @@ jobs:
         - { gemfile: 'rails_7.2', ruby: '3.3', postgres: '16' }
         - { gemfile: 'rails_7.2', ruby: '3.3', postgres: '17' }
         # modern
-        - { gemfile: 'rails_8.0', ruby: '3.3', postgres: '16', experimental: true }
-        - { gemfile: 'rails_8.0', ruby: '3.3', postgres: '17', experimental: true }
+        - { gemfile: 'rails_8.0', ruby: '3.4', postgres: '16' }
+        - { gemfile: 'rails_8.0', ruby: '3.4', postgres: '17' }
         # futuristic
         - { gemfile: 'rails_8.0', ruby: 'head', postgres: '17', experimental: true }
     continue-on-error: ${{ matrix.experimental || false }}
