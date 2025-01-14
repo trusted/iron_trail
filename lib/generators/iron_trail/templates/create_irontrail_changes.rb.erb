@@ -1,6 +1,6 @@
 class CreateIrontrailChanges < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
   def change
-    create_range_partition :irontrail_changes, partition_key: :created_at, primary_key: [:id, :created_at] do |t|
+    create_table :irontrail_changes, primary_key: [:id, :created_at] do |t|
       t.column :id, :bigserial, null: false
       t.column :actor_type, :text
       t.column :actor_id, :text
