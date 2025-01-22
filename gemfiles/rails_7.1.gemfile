@@ -3,6 +3,6 @@
 source "https://rubygems.org"
 
 gem "debug"
-gem "rails", "~> 7.1.5"
+gem "rails", "~> 7.1.5", ">= 7.1.5.1"
 
 gemspec path: "../"

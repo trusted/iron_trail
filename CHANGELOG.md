@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.0.6 - 2025-01-14
+
+### Changed
+
+- Dropped `pg_party` dependency and use regular tables in test suite
+- Test in CI with the latest versions
+
 ## 0.0.5 - 2025-01-06
 
 ### Fixed

@@ -24,7 +24,6 @@ require 'active_record/railtie'
 require 'action_controller/railtie'
 
 require 'iron_trail'
-require 'pg_party'
 require 'debug'
 require 'rspec/rails'
 
@@ -41,17 +40,6 @@ require File.expand_path('dummy_app/config/environment', __dir__)
 
 require_relative 'support/iron_trail_spec_migrator'
 ::IronTrailSpecMigrator.new.migrate
-
-Time.now.tap do |date|
-  partition_name = "irontrail_chgn_infinite"
-  next if ActiveRecord::Base.connection.table_exists?(partition_name)
-
-  IrontrailChange.create_partition(
-    name: partition_name,
-    start_range: Time.parse('2000-01-01T00:00:00Z'),
-    end_range: Time.parse('2100-01-01T00:00:00Z')
-  )
-end
 
 RSpec.configure do |config|
   config.use_transactional_fixtures = true
