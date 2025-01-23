@@ -11,10 +11,14 @@ DECLARE
   new_obj JSONB;
   actor_type TEXT;
   actor_id TEXT;
+  created_at TIMESTAMP;
 
   err_text TEXT; err_detail TEXT; err_hint TEXT; err_ctx TEXT;
 BEGIN
     SELECT split_part(split_part(current_query(), '/*IronTrail ', 2), ' IronTrail*/', 1) INTO it_meta;
+
+    created_at = NOW();
+
     IF (it_meta <> '') THEN
       it_meta_obj = it_meta::JSONB;
 
@@ -26,13 +30,19 @@ BEGIN
         actor_id = it_meta_obj->>'_actor_id';
         it_meta_obj = it_meta_obj - '_actor_id';
       END IF;
+
+      IF (it_meta_obj ? '_created_at') THEN
+        created_at = TO_TIMESTAMP((it_meta_obj->>'_created_at')::float8);
+        it_meta_obj = jsonb_set(it_meta_obj, array['_db_created_at'], TO_JSONB(EXTRACT(EPOCH FROM NOW())));
+        it_meta_obj = it_meta_obj - '_created_at';
+      END IF;
     END IF;
 
     IF (TG_OP = 'INSERT') THEN
         INSERT INTO "irontrail_changes" ("actor_id", "actor_type",
           "rec_table", "operation", "rec_id", "rec_new", "metadata", "created_at")
         VALUES (actor_id, actor_type,
-          TG_TABLE_NAME, 'i', NEW.id, row_to_json(NEW), it_meta_obj, NOW());
+          TG_TABLE_NAME, 'i', NEW.id, row_to_json(NEW), it_meta_obj, created_at);
 
     ELSIF (TG_OP = 'UPDATE') THEN
         IF (OLD <> NEW) THEN
@@ -52,13 +62,13 @@ BEGIN
           INSERT INTO "irontrail_changes" ("actor_id", "actor_type", "rec_table", "operation",
             "rec_id", "rec_old", "rec_new", "rec_delta", "metadata", "created_at")
           VALUES (actor_id, actor_type, TG_TABLE_NAME, 'u', NEW.id, row_to_json(OLD), row_to_json(NEW),
-          u_changes, it_meta_obj, NOW());
+          u_changes, it_meta_obj, created_at);
 
         END IF;
     ELSIF (TG_OP = 'DELETE') THEN
         INSERT INTO "irontrail_changes" ("actor_id", "actor_type", "rec_table", "operation",
           "rec_id", "rec_old", "metadata", "created_at")
-        VALUES (actor_id, actor_type, TG_TABLE_NAME, 'd', OLD.id, row_to_json(OLD), it_meta_obj, NOW());
+        VALUES (actor_id, actor_type, TG_TABLE_NAME, 'd', OLD.id, row_to_json(OLD), it_meta_obj, created_at);
 
     END IF;
     RETURN NULL;

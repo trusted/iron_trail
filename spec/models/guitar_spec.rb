@@ -35,6 +35,47 @@ RSpec.describe Guitar do
     end
   end
 
+  describe 'metadata _created_at attribute' do
+    let(:guitar) { Guitar.create!(description: 'the guitar', person:) }
+
+    before do
+      @time_now_db = ActiveRecord::Base.connection.query('SELECT NOW()').flatten.first
+      expect { guitar }.to change{ Guitar.count }.by(+1)
+
+      IronTrail.store_metadata(:_created_at, Time.parse('2023-10-12T17:05:22+0200').to_f)
+      guitar.update!(description: 'guitar 2')
+
+      IronTrail.store_metadata(:_created_at, Time.parse('2023-11-29T04:55:28+0200').to_f)
+      guitar.update!(description: 'guitar 3')
+    end
+
+    let(:trails) { guitar.reload.iron_trails.order({ id: :asc, created_at: :asc }) }
+
+    it 'has the expected timestamps' do
+      expect(trails.count).to eq(3)
+
+      expect(trails[0]).to have_attributes(operation: 'i')
+      expect(trails[0].created_at).to be_within(2.seconds).of(@time_now_db)
+
+      expect(trails[1]).to have_attributes(operation: 'u', created_at: Time.parse('2023-10-12T15:05:22Z'))
+      expect(trails[2]).to have_attributes(operation: 'u', created_at: Time.parse('2023-11-29T02:55:28Z'))
+    end
+
+    it 'has _created_at removed from metadata' do
+      expect(trails[1].metadata).not_to include('_created_at')
+      expect(trails[2].metadata).not_to include('_created_at')
+    end
+
+    it 'has _db_created_at in metadata whenever _created_at is passed in' do
+      expect(trails[0].metadata).to be_nil
+      expect(trails[1].metadata).to include('_db_created_at')
+      expect(trails[2].metadata).to include('_db_created_at')
+
+      expect(Time.at(trails[1].metadata['_db_created_at'])).to be_within(1.second).of(@time_now_db)
+      expect(Time.at(trails[2].metadata['_db_created_at'])).to be_within(1.second).of(@time_now_db)
+    end
+  end
+
   describe 'iron_trails.travel_to' do
     let(:guitar) { Guitar.create!(description: 'the guitar', person:) }
 
