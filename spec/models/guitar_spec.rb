@@ -35,6 +35,46 @@ RSpec.describe Guitar do
     end
   end
 
+  describe 'model created_at and updated_at attributes' do
+    let(:guitar) { Guitar.create!(description: 'the guitar', person:) }
+    let(:fake_update_time) { '2022-02-03T18:58:01.498334Z' }
+    let!(:some_part) { guitar.guitar_parts.create!(name: 'strings') }
+    let(:trails) { some_part.iron_trails.order(id: :asc).to_a }
+
+    before do
+      travel_to(fake_update_time) do
+        some_part.update!(name: 'Strings of the Guitar')
+      end
+
+      some_part.update!(name: 'Strings')
+    end
+
+    it 'uses the model created_at for the trail created_at on inserts and updates' do
+      expect(trails).to have_attributes(count: 3)
+      expect(trails[0].created_at).to be_within(1.second).of(some_part.created_at)
+      expect(trails[1].created_at).to be_within(1.second).of(Time.parse(fake_update_time))
+      expect(trails[2].created_at).to be_within(1.second).of(some_part.updated_at)
+    end
+
+    it 'will logically have the oldest trail be the first update' do
+      oldest_trail = some_part.iron_trails.order(created_at: :asc).first
+      expect(oldest_trail.id).to eq(trails[1].id)
+    end
+
+    describe 'record deletion' do
+      let(:fake_delete_time) { '2023-01-22T23:24:25.262728Z' }
+
+      before do
+        travel_to(fake_delete_time) { some_part.destroy! }
+      end
+
+      it 'uses the current time for the delete operation' do
+        trail = some_part.iron_trails.find_by!(operation: 'd')
+        expect(trail.created_at).to be_within(1.second).of(Time.now)
+      end
+    end
+  end
+
   describe 'iron_trails.travel_to' do
     let(:guitar) { Guitar.create!(description: 'the guitar', person:) }
 
