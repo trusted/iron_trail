@@ -88,7 +88,7 @@ EXCEPTION
         "err_text", "ex_detail", "ex_hint", "ex_ctx", "op", "table_name",
         "old_data", "new_data", "query", "created_at")
       VALUES (SQLSTATE, SQLERRM, err_text, err_detail, err_hint, err_ctx,
-        TG_OP, TG_TABLE_NAME, row_to_json(OLD), row_to_json(NEW), current_query(), NOW());
+        TG_OP, TG_TABLE_NAME, row_to_json(OLD), row_to_json(NEW), current_query(), STATEMENT_TIMESTAMP());
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
