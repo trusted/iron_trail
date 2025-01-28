@@ -102,6 +102,10 @@ Enabling/disabling IronTrail in specs works by replacing the trigger function in
 with a dummy no-op function or with the real function and it won't add or drop triggers from
 any tables.
 
+The `created_at` column of the `irontrail_changes` table is determined from the model timestamp attributes
+(`created_at` for inserts and `updated_at` for updates) if they're present.
+There is a caveat for delete operations: the value will always be the current timestamp from the database. This makes it impossible to mock for that scenario.
+
 ## Rake tasks
 
 IronTrail comes with a few handy rake tasks you can use in your dev, test and
