@@ -40,9 +40,9 @@ BEGIN
     END IF;
 
     IF (created_at IS NULL) THEN
-      created_at = NOW();
+      created_at = STATEMENT_TIMESTAMP();
     ELSE
-      it_meta_obj = jsonb_set(COALESCE(it_meta_obj, '{}'::jsonb), array['_db_created_at'], TO_JSONB(NOW()));
+      it_meta_obj = jsonb_set(COALESCE(it_meta_obj, '{}'::jsonb), array['_db_created_at'], TO_JSONB(STATEMENT_TIMESTAMP()));
     END IF;
 
     IF (TG_OP = 'INSERT') THEN

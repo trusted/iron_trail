@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Use model timestamps (created_at, updated_at) for irontrail_changes.created_at column
+- Use STATEMENT_TIMESTAMP() instead of NOW() for irontrail_changes.created_at column
 
 ## 0.0.6 - 2025-01-14
 
