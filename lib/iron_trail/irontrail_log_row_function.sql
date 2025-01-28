@@ -41,6 +41,8 @@ BEGIN
 
     IF (created_at IS NULL) THEN
       created_at = NOW();
+    ELSE
+      it_meta_obj = jsonb_set(COALESCE(it_meta_obj, '{}'::jsonb), array['_db_created_at'], TO_JSONB(NOW()));
     END IF;
 
     IF (TG_OP = 'INSERT') THEN

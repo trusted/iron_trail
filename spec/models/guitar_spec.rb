@@ -61,6 +61,57 @@ RSpec.describe Guitar do
       expect(oldest_trail.id).to eq(trails[1].id)
     end
 
+    describe 'metadata _db_created_at injection' do
+      it 'injects original db time into metadata' do
+        current_time = Time.now
+
+        expect(trails[0].metadata).not_to be_nil
+        expect(trails[1].metadata).not_to be_nil
+        expect(trails[2].metadata).not_to be_nil
+
+        expect(trails[0].metadata).to include('_db_created_at')
+        expect(Time.parse(trails[0].metadata['_db_created_at'])).to be_within(1.second).of(current_time)
+        expect(trails[1].metadata).to include('_db_created_at')
+        expect(Time.parse(trails[1].metadata['_db_created_at'])).to be_within(1.second).of(current_time)
+        expect(trails[2].metadata).to include('_db_created_at')
+        expect(Time.parse(trails[2].metadata['_db_created_at'])).to be_within(1.second).of(current_time)
+      end
+
+      context 'when there is previous metadata present' do
+        let(:fake_update_time_with_metadata) { '2022-01-02T20:00:30.778899Z' }
+        let(:expected_metadata) { { 'foo_bar' => { 'whatever' => 'does it work?' } } }
+
+        before do
+          travel_to(fake_update_time_with_metadata) do
+            IronTrail.store_metadata(:foo_bar, { whatever: 'does it work?' })
+
+            some_part.update!(name: 'the last straw')
+          end
+
+          some_part.destroy!
+        end
+
+        it 'preserves original metadata' do
+          last_trail = trails[3]
+          expect(last_trail.metadata).not_to be_nil
+          expect(last_trail.metadata).to include('foo_bar', '_db_created_at')
+          expect(last_trail.metadata).to include(expected_metadata)
+        end
+
+        it 'keeps the original metadata untouched when db original timestamp is not stored' do
+          expect(trails[4].metadata).to eq(expected_metadata)
+        end
+      end
+
+      context 'when it is a delete operation' do
+        it 'does not inject original db time into metadata' do
+          some_part.destroy!
+          trail = some_part.iron_trails.find_by!(operation: 'd')
+          expect(trail.metadata).to be_nil
+        end
+      end
+    end
+
     describe 'record insertion' do
       let(:fake_insert_time) { '2021-12-14T12:34:56.010102Z' }
 
