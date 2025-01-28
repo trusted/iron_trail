@@ -61,6 +61,21 @@ RSpec.describe Guitar do
       expect(oldest_trail.id).to eq(trails[1].id)
     end
 
+    describe 'record insertion' do
+      let(:fake_insert_time) { '2021-12-14T12:34:56.010102Z' }
+
+      it 'uses the model creation time for the insert operation' do
+        part = nil
+
+        travel_to(fake_insert_time) do
+          part = guitar.guitar_parts.create!(name: 'neck')
+        end
+
+        trail = part.iron_trails.first
+        expect(trail.created_at).to be_within(1.second).of(Time.parse(fake_insert_time))
+      end
+    end
+
     describe 'record deletion' do
       let(:fake_delete_time) { '2023-01-22T23:24:25.262728Z' }
 
