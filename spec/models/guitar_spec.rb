@@ -35,6 +35,112 @@ RSpec.describe Guitar do
     end
   end
 
+  describe 'model created_at and updated_at attributes' do
+    let(:guitar) { Guitar.create!(description: 'the guitar', person:) }
+    let(:fake_update_time) { '2022-02-03T18:58:01.498334Z' }
+    let!(:some_part) { guitar.guitar_parts.create!(name: 'strings') }
+    let(:trails) { some_part.iron_trails.order(id: :asc).to_a }
+
+    before do
+      travel_to(fake_update_time) do
+        some_part.update!(name: 'Strings of the Guitar')
+      end
+
+      some_part.update!(name: 'Strings')
+    end
+
+    it 'uses the model created_at for the trail created_at on inserts and updates' do
+      expect(trails).to have_attributes(count: 3)
+      expect(trails[0].created_at).to be_within(1.second).of(some_part.created_at)
+      expect(trails[1].created_at).to be_within(1.second).of(Time.parse(fake_update_time))
+      expect(trails[2].created_at).to be_within(1.second).of(some_part.updated_at)
+    end
+
+    it 'will logically have the oldest trail be the first update' do
+      oldest_trail = some_part.iron_trails.order(created_at: :asc).first
+      expect(oldest_trail.id).to eq(trails[1].id)
+    end
+
+    describe 'metadata _db_created_at injection' do
+      it 'injects original db time into metadata' do
+        current_time = Time.now
+
+        expect(trails[0].metadata).not_to be_nil
+        expect(trails[1].metadata).not_to be_nil
+        expect(trails[2].metadata).not_to be_nil
+
+        expect(trails[0].metadata).to include('_db_created_at')
+        expect(Time.parse(trails[0].metadata['_db_created_at'])).to be_within(1.second).of(current_time)
+        expect(trails[1].metadata).to include('_db_created_at')
+        expect(Time.parse(trails[1].metadata['_db_created_at'])).to be_within(1.second).of(current_time)
+        expect(trails[2].metadata).to include('_db_created_at')
+        expect(Time.parse(trails[2].metadata['_db_created_at'])).to be_within(1.second).of(current_time)
+      end
+
+      context 'when there is previous metadata present' do
+        let(:fake_update_time_with_metadata) { '2022-01-02T20:00:30.778899Z' }
+        let(:expected_metadata) { { 'foo_bar' => { 'whatever' => 'does it work?' } } }
+
+        before do
+          travel_to(fake_update_time_with_metadata) do
+            IronTrail.store_metadata(:foo_bar, { whatever: 'does it work?' })
+
+            some_part.update!(name: 'the last straw')
+          end
+
+          some_part.destroy!
+        end
+
+        it 'preserves original metadata' do
+          last_trail = trails[3]
+          expect(last_trail.metadata).not_to be_nil
+          expect(last_trail.metadata).to include('foo_bar', '_db_created_at')
+          expect(last_trail.metadata).to include(expected_metadata)
+        end
+
+        it 'keeps the original metadata untouched when db original timestamp is not stored' do
+          expect(trails[4].metadata).to eq(expected_metadata)
+        end
+      end
+
+      context 'when it is a delete operation' do
+        it 'does not inject original db time into metadata' do
+          some_part.destroy!
+          trail = some_part.iron_trails.find_by!(operation: 'd')
+          expect(trail.metadata).to be_nil
+        end
+      end
+    end
+
+    describe 'record insertion' do
+      let(:fake_insert_time) { '2021-12-14T12:34:56.010102Z' }
+
+      it 'uses the model creation time for the insert operation' do
+        part = nil
+
+        travel_to(fake_insert_time) do
+          part = guitar.guitar_parts.create!(name: 'neck')
+        end
+
+        trail = part.iron_trails.first
+        expect(trail.created_at).to be_within(1.second).of(Time.parse(fake_insert_time))
+      end
+    end
+
+    describe 'record deletion' do
+      let(:fake_delete_time) { '2023-01-22T23:24:25.262728Z' }
+
+      before do
+        travel_to(fake_delete_time) { some_part.destroy! }
+      end
+
+      it 'uses the current time for the delete operation' do
+        trail = some_part.iron_trails.find_by!(operation: 'd')
+        expect(trail.created_at).to be_within(1.second).of(Time.now)
+      end
+    end
+  end
+
   describe 'iron_trails.travel_to' do
     let(:guitar) { Guitar.create!(description: 'the guitar', person:) }
 

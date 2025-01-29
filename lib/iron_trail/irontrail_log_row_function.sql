@@ -11,10 +11,12 @@ DECLARE
   new_obj JSONB;
   actor_type TEXT;
   actor_id TEXT;
+  created_at TIMESTAMP;
 
   err_text TEXT; err_detail TEXT; err_hint TEXT; err_ctx TEXT;
 BEGIN
     SELECT split_part(split_part(current_query(), '/*IronTrail ', 2), ' IronTrail*/', 1) INTO it_meta;
+
     IF (it_meta <> '') THEN
       it_meta_obj = it_meta::JSONB;
 
@@ -28,17 +30,30 @@ BEGIN
       END IF;
     END IF;
 
+    old_obj = row_to_json(OLD);
+    new_obj = row_to_json(NEW);
+
+    IF (TG_OP = 'INSERT' AND new_obj ? 'created_at') THEN
+      created_at = NEW.created_at;
+    ELSIF (TG_OP = 'UPDATE' AND new_obj ? 'updated_at') THEN
+      created_at = NEW.updated_at;
+    END IF;
+
+    IF (created_at IS NULL) THEN
+      created_at = NOW();
+    ELSE
+      it_meta_obj = jsonb_set(COALESCE(it_meta_obj, '{}'::jsonb), array['_db_created_at'], TO_JSONB(NOW()));
+    END IF;
+
     IF (TG_OP = 'INSERT') THEN
         INSERT INTO "irontrail_changes" ("actor_id", "actor_type",
           "rec_table", "operation", "rec_id", "rec_new", "metadata", "created_at")
         VALUES (actor_id, actor_type,
-          TG_TABLE_NAME, 'i', NEW.id, row_to_json(NEW), it_meta_obj, NOW());
+          TG_TABLE_NAME, 'i', NEW.id, new_obj, it_meta_obj, created_at);
 
     ELSIF (TG_OP = 'UPDATE') THEN
         IF (OLD <> NEW) THEN
           u_changes = jsonb_build_object();
-          old_obj = row_to_json(OLD);
-          new_obj = row_to_json(NEW);
 
           FOR key IN (SELECT jsonb_object_keys(old_obj) UNION SELECT jsonb_object_keys(new_obj))
           LOOP
@@ -51,14 +66,13 @@ BEGIN
 
           INSERT INTO "irontrail_changes" ("actor_id", "actor_type", "rec_table", "operation",
             "rec_id", "rec_old", "rec_new", "rec_delta", "metadata", "created_at")
-          VALUES (actor_id, actor_type, TG_TABLE_NAME, 'u', NEW.id, row_to_json(OLD), row_to_json(NEW),
-          u_changes, it_meta_obj, NOW());
+          VALUES (actor_id, actor_type, TG_TABLE_NAME, 'u', NEW.id, old_obj, new_obj, u_changes, it_meta_obj, created_at);
 
         END IF;
     ELSIF (TG_OP = 'DELETE') THEN
         INSERT INTO "irontrail_changes" ("actor_id", "actor_type", "rec_table", "operation",
           "rec_id", "rec_old", "metadata", "created_at")
-        VALUES (actor_id, actor_type, TG_TABLE_NAME, 'd', OLD.id, row_to_json(OLD), it_meta_obj, NOW());
+        VALUES (actor_id, actor_type, TG_TABLE_NAME, 'd', OLD.id, old_obj, it_meta_obj, created_at);
 
     END IF;
     RETURN NULL;

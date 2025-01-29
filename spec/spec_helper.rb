@@ -43,4 +43,5 @@ require_relative 'support/iron_trail_spec_migrator'
 
 RSpec.configure do |config|
   config.use_transactional_fixtures = true
+  config.include ActiveSupport::Testing::TimeHelpers
 end

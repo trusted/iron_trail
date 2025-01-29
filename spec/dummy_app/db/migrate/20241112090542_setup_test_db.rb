@@ -18,6 +18,8 @@ class SetupTestDb < ::ActiveRecord::Migration::Current
     create_table :guitar_parts, id: :bigserial, force: true do |t|
       t.uuid :guitar_id
       t.string :name
+
+      t.timestamps
     end
 
     create_table :matrix_pills, id: :bigserial, force: true do |t|
