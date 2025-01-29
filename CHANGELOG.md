@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.1.0 - 2025-01-29
+
 ### Changed
 
 - Use model timestamps (created_at, updated_at) for irontrail_changes.created_at column
