@@ -25,6 +25,10 @@ module Dummy
     # config.autoload_lib(ignore: %w[assets tasks])
     config.eager_load = false
 
+    # Enable query log tags
+    config.active_record.query_log_tags_enabled = true
+    config.active_record.query_log_tags = %i[source_location]
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files
