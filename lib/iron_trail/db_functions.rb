@@ -56,9 +56,30 @@ module IronTrail
       connection.execute(query)
     end
 
+    # Counting rows in Postgres is known to be a slow operation for large tables.
+    # Because of this, avoid using this for monitoring new errors. Instead,
+    # use the trigger_errors_metrics method.
     def trigger_errors_count
       stmt = 'SELECT COUNT(*) AS c FROM "irontrail_trigger_errors"'
       connection.execute(stmt).first['c']
+    end
+
+    # This returns metrics intended to be used for monitoring. One can send
+    # these values to something like a Prometheus deployment and add monitoring
+    # on top of it.
+    # It should be much faster to run than trigger_errors_count.
+    #
+    # If the irontrail_trigger_errors table is empty, the resulting values
+    # will all be zero and never nil. This is so that data in a monitoring setup
+    # can tell apart a failure from a no-data scenario.
+    def trigger_errors_metrics
+      stmt = 'SELECT MAX(created_at) maxdate, MAX(id) AS maxid FROM "irontrail_trigger_errors"'
+      res = connection.execute(stmt).first
+
+      {
+        max_created_at: (res && res['maxdate'] && res['maxdate'].to_i) || 0,
+        max_id: (res && res['maxid']) || 0,
+      }
     end
 
     def collect_all_tables(schema: 'public')

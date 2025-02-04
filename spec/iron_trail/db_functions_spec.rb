@@ -117,6 +117,34 @@ RSpec.describe IronTrail::DbFunctions do
     end
   end
 
+  describe '#trigger_errors_metrics' do
+    subject(:metrics) { instance.trigger_errors_metrics }
+
+    it 'is has zero values when there are no trigger errors' do
+      expect(metrics).to be_a(Hash)
+      expect(metrics).to eq({
+        max_created_at: 0,
+        max_id: 0,
+      })
+    end
+
+    context 'when there are trigger errors' do
+      before do
+        connection.execute(<<~SQL)
+        INSERT INTO "irontrail_trigger_errors" (id, query, created_at) VALUES
+          (42, 'foo', '2023-06-15T12:01:03Z');
+        SQL
+      end
+
+      it 'matches the max created_at and ids' do
+        expect(metrics).to eq({
+          max_id: 42,
+          max_created_at: Time.parse('2023-06-15T12:01:03Z').to_i,
+        })
+      end
+    end
+  end
+
   describe '#disable_for_all_ignored_tables' do
     subject(:disable_it!) do
       instance.disable_for_all_ignored_tables
