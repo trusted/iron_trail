@@ -52,17 +52,6 @@ module IronTrail
       config.enable
     end
 
-    # def test_mode!
-    #   if [ENV['RAILS_ENV'], ENV['RACK_ENV']].include?('production')
-    #     raise "IronTrail test mode cannot be enabled in production!"
-    #   end
-    #   @test_mode = true
-    # end
-    #
-    # def test_mode?
-    #   @test_mode
-    # end
-
     def ignore_table?(name)
       (OWN_TABLES + (config.ignored_tables || [])).include?(name)
     end

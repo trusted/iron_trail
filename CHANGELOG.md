@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.1.1 - 2025-02-04
+
 ### Added
 
 - `IronTrail::DbFunctions#trigger_errors_metrics` method to be able to monitor error metrics

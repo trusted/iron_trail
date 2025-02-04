@@ -31,4 +31,13 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'sidekiq', '~> 7.2'
 
   s.required_ruby_version = '>= 3.1.0'
+
+  s.metadata = {
+    'bug_tracker_uri' => 'https://github.com/trusted/iron_trail/issues',
+    'changelog_uri' => 'https://github.com/trusted/iron_trail/blob/main/CHANGELOG.md',
+    'documentation_uri' => 'https://github.com/trusted/iron_trail/blob/main/README.md',
+    'homepage_uri' => 'https://github.com/trusted/iron_trail',
+    'source_code_uri' => 'https://github.com/trusted/iron_trail',
+    'wiki_uri' => 'https://github.com/trusted/iron_trail/wiki'
+  }
 end
