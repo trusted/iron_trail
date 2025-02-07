@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
 
   s.add_dependency 'rails', '>= 7.1'
-  s.add_dependency 'request_store', '~> 1.5'
 
   s.add_development_dependency 'appraisal', '~> 2.5'
 

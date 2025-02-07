@@ -3,14 +3,13 @@
 require 'singleton'
 require 'json'
 require 'forwardable'
-require 'request_store'
 
 require 'iron_trail/version'
 require 'iron_trail/config'
 require 'iron_trail/db_functions'
 require 'iron_trail/migration'
 
-require 'iron_trail/metadata_store'
+require 'iron_trail/current'
 require 'iron_trail/query_transformer'
 
 require 'iron_trail/association'
@@ -73,16 +72,9 @@ module IronTrail
       @query_transformer.setup_active_record
     end
 
-    def store_instance
-      @store_instance ||= MetadataStore.new
-    end
-
-    def_delegators :store_instance,
+    def_delegators ::IronTrail::Current,
                    :store_metadata,
-                   :merge_metadata,
-                   :current_metadata
-
-
+                   :merge_metadata
   end
 end
 

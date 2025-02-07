@@ -18,7 +18,7 @@ module IronTrail
 
     def create_query_transformer_proc
       proc do |query, adapter|
-        current_metadata = IronTrail.current_metadata
+        current_metadata = IronTrail::Current.metadata
         next query unless adapter.write_query?(query) && (current_metadata.is_a?(Hash) && !current_metadata.empty?)
 
         metadata = JSON.dump(current_metadata)

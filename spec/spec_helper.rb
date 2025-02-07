@@ -10,7 +10,7 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 
   config.before do
-    RequestStore.clear!
+    IronTrail::Current.reset
   end
 end
 
