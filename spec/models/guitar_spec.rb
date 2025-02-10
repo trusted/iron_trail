@@ -56,6 +56,24 @@ RSpec.describe Guitar do
       expect(trails[2].created_at).to be_within(1.second).of(some_part.updated_at)
     end
 
+    context 'when an object is updated without changing the updated_at column' do
+      let(:second_fake_updated_at) { 10.seconds.ago }
+
+      before do
+        travel_to(second_fake_updated_at) do
+          some_part.update!(name: 'Neck of the Guitar')
+        end
+
+        some_part.update_columns(name: 'Part of the Guitar')
+      end
+
+      it 'creates the irontrail_change with the current DB timestamp' do
+        expect(trails).to have_attributes(count: 5)
+        expect(trails[-2].created_at).to be_within(1.second).of(second_fake_updated_at)
+        expect(trails[-1].created_at).to be_within(1.second).of(Time.now)
+      end
+    end
+
     it 'will logically have the oldest trail be the first update' do
       oldest_trail = some_part.iron_trails.order(created_at: :asc).first
       expect(oldest_trail.id).to eq(trails[1].id)

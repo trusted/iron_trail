@@ -36,7 +36,9 @@ BEGIN
     IF (TG_OP = 'INSERT' AND new_obj ? 'created_at') THEN
       created_at = NEW.created_at;
     ELSIF (TG_OP = 'UPDATE' AND new_obj ? 'updated_at') THEN
-      created_at = NEW.updated_at;
+      IF (NEW.updated_at <> OLD.updated_at) THEN
+        created_at = NEW.updated_at;
+      END IF;
     END IF;
 
     IF (created_at IS NULL) THEN
