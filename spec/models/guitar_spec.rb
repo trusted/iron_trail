@@ -67,8 +67,15 @@ RSpec.describe Guitar do
         some_part.update_columns(name: 'Part of the Guitar')
       end
 
-      it 'creates the irontrail_change with the current DB timestamp' do
+      # spec sanity check
+      it 'tests the spec itself' do
         expect(trails).to have_attributes(count: 5)
+
+        expect(trails[-2].rec_new['name']).to eq('Neck of the Guitar')
+        expect(trails[-1].rec_new['name']).to eq('Part of the Guitar')
+      end
+
+      it 'creates the irontrail_change with the current DB timestamp' do
         expect(trails[-2].created_at).to be_within(1.second).of(second_fake_updated_at)
         expect(trails[-1].created_at).to be_within(1.second).of(Time.now)
       end
