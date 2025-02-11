@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.1.2 - 2025-02-11
+
 ### Fixed
 
 - Use a more accurate value for `irontrail_changes.created_at` on updates that don't touch the updated_at column
