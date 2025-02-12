@@ -7,13 +7,10 @@ RSpec.describe IronTrail::QueryTransformer do
     double.tap do |dbl|
       allow(dbl).to receive(:write_query?).and_return(is_write_query)
     end
-
   end
-  let(:store_instance) { IronTrail::MetadataStore.new }
 
   before do
-    store_instance.merge_metadata([], metadata)
-    allow(IronTrail).to receive(:store_instance).and_return(store_instance)
+    IronTrail.merge_metadata([], metadata)
   end
 
   describe 'transformer proc' do

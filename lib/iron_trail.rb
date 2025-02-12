@@ -3,14 +3,13 @@
 require 'singleton'
 require 'json'
 require 'forwardable'
-require 'request_store'
 
 require 'iron_trail/version'
 require 'iron_trail/config'
 require 'iron_trail/db_functions'
 require 'iron_trail/migration'
 
-require 'iron_trail/metadata_store'
+require 'iron_trail/current'
 require 'iron_trail/query_transformer'
 
 require 'iron_trail/association'
@@ -52,17 +51,6 @@ module IronTrail
       config.enable
     end
 
-    # def test_mode!
-    #   if [ENV['RAILS_ENV'], ENV['RACK_ENV']].include?('production')
-    #     raise "IronTrail test mode cannot be enabled in production!"
-    #   end
-    #   @test_mode = true
-    # end
-    #
-    # def test_mode?
-    #   @test_mode
-    # end
-
     def ignore_table?(name)
       (OWN_TABLES + (config.ignored_tables || [])).include?(name)
     end
@@ -84,16 +72,9 @@ module IronTrail
       @query_transformer.setup_active_record
     end
 
-    def store_instance
-      @store_instance ||= MetadataStore.new
-    end
-
-    def_delegators :store_instance,
+    def_delegators ::IronTrail::Current,
                    :store_metadata,
-                   :merge_metadata,
-                   :current_metadata
-
-
+                   :merge_metadata
   end
 end
 

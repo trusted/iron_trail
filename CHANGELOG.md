@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.1.3 - 2025-02-12
+
+### Changed
+
+- Drop RequestStore dependency and use rails' ActiveSupport::CurrentAttributes
+
+## 0.1.2 - 2025-02-11
+
+### Fixed
+
+- Use a more accurate value for `irontrail_changes.created_at` on updates that don't touch the updated_at column
+
+## 0.1.1 - 2025-02-04
+
+### Added
+
+- `IronTrail::DbFunctions#trigger_errors_metrics` method to be able to monitor error metrics
+
 ## 0.1.0 - 2025-01-29
 
 ### Changed

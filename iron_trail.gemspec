@@ -20,7 +20,6 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
 
   s.add_dependency 'rails', '>= 7.1'
-  s.add_dependency 'request_store', '~> 1.5'
 
   s.add_development_dependency 'appraisal', '~> 2.5'
 
@@ -31,4 +30,13 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'sidekiq', '~> 7.2'
 
   s.required_ruby_version = '>= 3.1.0'
+
+  s.metadata = {
+    'bug_tracker_uri' => 'https://github.com/trusted/iron_trail/issues',
+    'changelog_uri' => 'https://github.com/trusted/iron_trail/blob/main/CHANGELOG.md',
+    'documentation_uri' => 'https://github.com/trusted/iron_trail/blob/main/README.md',
+    'homepage_uri' => 'https://github.com/trusted/iron_trail',
+    'source_code_uri' => 'https://github.com/trusted/iron_trail',
+    'wiki_uri' => 'https://github.com/trusted/iron_trail/wiki'
+  }
 end
