@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixes `IronTrail::ChangeModelConcern#where_object_changes_*` methods when calling them with nil values
+
 ## 0.1.3 - 2025-02-12
 
 ### Changed
