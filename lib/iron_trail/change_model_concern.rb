@@ -24,14 +24,18 @@ module IronTrail
       private
 
       def _where_object_changes(ary_index, args)
+        ary_index = Integer(ary_index)
         scope = all
 
         args.each do |col_name, value|
-          scope.where!(
-            ::Arel::Nodes::SqlLiteral.new("rec_delta->#{connection.quote col_name}->>#{Integer(ary_index)}").eq(
-              ::Arel::Nodes::BindParam.new(value.to_s)
-            )
-          )
+          col_delta = "rec_delta->#{connection.quote(col_name)}"
+          node = if value == nil
+            ::Arel::Nodes::SqlLiteral.new("#{col_delta}->#{ary_index} = 'null'::jsonb")
+          else
+            ::Arel::Nodes::SqlLiteral.new("#{col_delta}->>#{ary_index}").eq(::Arel::Nodes::BindParam.new(value.to_s))
+          end
+
+          scope.where!(node)
         end
 
         scope

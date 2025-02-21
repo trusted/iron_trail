@@ -28,6 +28,15 @@ RSpec.describe IrontrailChange do
         person.update!(last_name: 'Cash')
       end
 
+      context 'when change is from a nil value' do
+        it 'finds the expected record' do
+          scope = person.iron_trails.where_object_changes_from(favorite_planet: nil)
+          expect(scope.count).to eq(1)
+          expect(scope.first.rec_old).to include('first_name' => 'Johnny', 'last_name' => 'Tod')
+          expect(scope.first.rec_new).to include('first_name' => 'Michael', 'last_name' => 'Tod')
+        end
+      end
+
       it 'finds the expected records' do
         scope = person.iron_trails.where_object_changes_from(first_name: 'Michael')
         expect(scope.count).to eq(1)
@@ -58,7 +67,15 @@ RSpec.describe IrontrailChange do
         person.update!(first_name: 'Michael')
         person.update!(first_name: 'Johnny', last_name: 'Tod')
         person.update!(first_name: 'Michael', favorite_planet: 'Saturn')
-        person.update!(last_name: 'Cash')
+        person.update!(last_name: 'Cash', favorite_planet: nil)
+      end
+
+      context 'when change is to a nil value' do
+        it 'finds the expected record' do
+          scope = person.iron_trails.where_object_changes_to(favorite_planet: nil)
+          expect(scope.count).to eq(1)
+          expect(scope.first.rec_new).to include('first_name' => 'Michael', 'last_name' => 'Cash')
+        end
       end
 
       it 'finds the expected records' do
@@ -67,7 +84,10 @@ RSpec.describe IrontrailChange do
 
         expect(scope.first.rec_old).to include('first_name' => 'Michael', 'last_name' => 'Tod')
         expect(scope.first.rec_new).to include('first_name' => 'Michael', 'last_name' => 'Cash')
-        expect(scope.first.rec_delta).to eq({ 'last_name' => ['Tod', 'Cash'] })
+        expect(scope.first.rec_delta).to eq({
+          'last_name' => ['Tod', 'Cash'],
+          'favorite_planet' => ['Saturn', nil]
+        })
 
         scope = person.iron_trails.where_object_changes_to(first_name: 'Michael')
           .order({
