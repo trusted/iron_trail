@@ -32,7 +32,9 @@ module IronTrail
           node = if value == nil
             ::Arel::Nodes::SqlLiteral.new("#{col_delta}->#{ary_index} = 'null'::jsonb")
           else
-            ::Arel::Nodes::SqlLiteral.new("#{col_delta}->>#{ary_index}").eq(::Arel::Nodes::BindParam.new(value.to_s))
+            ::Arel::Nodes::SqlLiteral.new("#{col_delta}->>#{ary_index}").eq(
+              ::Arel::Nodes::BindParam.new(value.to_s)
+            )
           end
 
           scope.where!(node)
