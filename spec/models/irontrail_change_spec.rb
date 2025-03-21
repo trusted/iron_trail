@@ -114,5 +114,55 @@ RSpec.describe IrontrailChange do
         expect(scope.first.id).to eq(planet_changed_record.id)
       end
     end
+
+    describe 'with_delta_other_than' do
+      subject(:trails) { person.iron_trails.with_delta_other_than(*columns) }
+
+      before do
+        person.update!(first_name: 'Michael')
+        person.update!(first_name: 'Bob', favorite_planet: 'Saturn')
+        person.update!(favorite_planet: 'Pluto*')
+        person.update!(last_name: 'Cash')
+      end
+
+      let(:columns) { [:favorite_planet] }
+
+      it 'has basic functionality' do
+        expect(trails.count).to eq(3)
+        expect(trails.order(id: :asc).map(&:rec_delta)).to eq([
+          { 'first_name' => ['Arthur', 'Michael'] },
+          { 'first_name' => ['Michael', 'Bob'], 'favorite_planet' => [nil, 'Saturn'] },
+          { 'last_name' => ['Klarkey', 'Cash'] },
+        ])
+
+        all_change_values_to = trails.flat_map { |x| x.rec_delta.values.map(&:second) }
+        expect(all_change_values_to).to include('Bob')
+        expect(all_change_values_to).not_to include('Pluto*')
+      end
+
+      context 'when there are multiple columns' do
+        let(:columns) { ['favorite_planet', :first_name] }
+
+        it 'ignored all changes that only change favorite_planet and/or first_name' do
+          expect(trails.count).to eq(1)
+          expect(trails.first.rec_delta).to eq({ 'last_name' => ['Klarkey', 'Cash'] })
+        end
+      end
+
+      context 'when columns is empty' do
+        let(:columns) { [] }
+
+        it 'returns all updates' do
+          expect(trails.count).to eq(4)
+        end
+
+        # rec_delta is null for insert and delete opertations, this means
+        # they're implicitly excluded when #with_delta_other_than is applied.
+        it 'returns update operations only' do
+          operations = trails.map(&:operation).uniq
+          expect(operations).to contain_exactly('u')
+        end
+      end
+    end
   end
 end
