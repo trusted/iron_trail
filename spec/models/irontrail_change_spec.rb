@@ -128,14 +128,15 @@ RSpec.describe IrontrailChange do
       let(:columns) { [:favorite_planet] }
 
       it 'has basic functionality' do
-        expect(trails.count).to eq(3)
+        expect(trails.count).to eq(4)
         expect(trails.order(id: :asc).map(&:rec_delta)).to eq([
+          nil,
           { 'first_name' => ['Arthur', 'Michael'] },
           { 'first_name' => ['Michael', 'Bob'], 'favorite_planet' => [nil, 'Saturn'] },
           { 'last_name' => ['Klarkey', 'Cash'] },
         ])
 
-        all_change_values_to = trails.flat_map { |x| x.rec_delta.values.map(&:second) }
+        all_change_values_to = trails.updates.flat_map { |x| x.rec_delta.values.map(&:second) }
         expect(all_change_values_to).to include('Bob')
         expect(all_change_values_to).not_to include('Pluto*')
       end
@@ -144,23 +145,21 @@ RSpec.describe IrontrailChange do
         let(:columns) { ['favorite_planet', :first_name] }
 
         it 'ignored all changes that only change favorite_planet and/or first_name' do
-          expect(trails.count).to eq(1)
-          expect(trails.first.rec_delta).to eq({ 'last_name' => ['Klarkey', 'Cash'] })
+          expect(trails.count).to eq(2)
+          expect(trails.updates.first.rec_delta).to eq({ 'last_name' => ['Klarkey', 'Cash'] })
         end
       end
 
       context 'when columns is empty' do
         let(:columns) { [] }
 
-        it 'returns all updates' do
-          expect(trails.count).to eq(4)
+        it 'returns all updates and the insertion' do
+          expect(trails.count).to eq(4 + 1)
         end
 
-        # rec_delta is null for insert and delete opertations, this means
-        # they're implicitly excluded when #with_delta_other_than is applied.
-        it 'returns update operations only' do
-          operations = trails.map(&:operation).uniq
-          expect(operations).to contain_exactly('u')
+        it 'returns updates and inserts only' do
+          operations = trails.order(created_at: :asc, id: :asc).map(&:operation)
+          expect(operations).to eq(%w[i u u u u])
         end
       end
     end

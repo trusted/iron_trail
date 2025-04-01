@@ -29,14 +29,12 @@ module IronTrail
       #
       # This works by inspecting whether there are any keys in the rec_delta column
       # other than the columns specified in the `columns` parameter.
-      #
-      # Caveats: this implicitly filters out insert and delete operations, because
-      #   rec_delta would be null in such cases.
       def with_delta_other_than(*columns)
         quoted_columns = columns.map { |col_name| connection.quote(col_name) }
         exclude_array = "ARRAY[#{quoted_columns.join(', ')}]::text[]"
 
-        where(::Arel::Nodes::SqlLiteral.new("(rec_delta - #{exclude_array}) <> '{}'::jsonb"))
+        sql = "rec_delta IS NULL OR (rec_delta - #{exclude_array}) <> '{}'::jsonb"
+        where(::Arel::Nodes::SqlLiteral.new(sql))
       end
 
       private
