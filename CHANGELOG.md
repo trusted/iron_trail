@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add '.with_delta_other_than' to `IronTrail::ChangeModelConcern`
+- Add `irontrail_set_actor` rspec helper method
+
+### Changed
+
+- Call `IronTrail::Current.reset` before each spec when using `iron_trail/testing/rspec`
 
 ## 0.1.4 - 2025-02-24
 
