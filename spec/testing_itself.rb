@@ -12,6 +12,41 @@ RSpec.describe 'lib/iron_trail/testing/rspec.rb' do
     person.update!(first_name: 'Jane')
   end
 
+  describe 'IronTrail::Testing::InstanceMethods#irontrail_set_actor' do
+    before do
+      IronTrail::Current.reset
+
+      klass = Class.new
+      klass.class_eval("def self.name = 'JustSomeKlass'; attr_accessor :id")
+      actor = klass.new
+      actor.id = 'JustSomeId'
+
+      irontrail_set_actor(actor)
+    end
+
+    it 'sets the actor attributes' do
+      IronTrail::Testing.with_iron_trail(want_enabled: true) do
+        person
+      end
+
+      expect(person.reload.iron_trails.first).to have_attributes(
+        actor_id: 'JustSomeId',
+        actor_type: 'JustSomeKlass'
+      )
+
+      irontrail_set_actor(nil)
+
+      IronTrail::Testing.with_iron_trail(want_enabled: true) do
+        person.update!(first_name: 'Jeremy')
+      end
+
+      expect(person.reload.iron_trails.where(operation: 'u').first).to have_attributes(
+        actor_id: nil,
+        actor_type: nil
+      )
+    end
+  end
+
   describe 'IronTrail::Testing#with_iron_trail' do
     context 'when IronTrail is disabled but we enable it for a while' do
       it 'tracks only while enabled' do

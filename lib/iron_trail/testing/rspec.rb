@@ -9,6 +9,20 @@ require 'iron_trail'
 
 module IronTrail
   module Testing
+    module InstanceMethods
+      def irontrail_set_actor(actor)
+        if actor.nil?
+          IronTrail::Current.metadata.delete(:_actor_type)
+          IronTrail::Current.metadata.delete(:_actor_id)
+        else
+          IronTrail::Current.merge_metadata([], {
+            _actor_type: actor.class.name,
+            _actor_id: actor.id
+          })
+        end
+      end
+    end
+
     class << self
       attr_accessor :enabled
 
@@ -56,11 +70,18 @@ module IronTrail
 end
 
 RSpec.configure do |config|
+  config.include ::IronTrail::Testing::InstanceMethods
+
   config.around(:each, iron_trail: true) do |example|
     IronTrail::Testing.with_iron_trail(want_enabled: true) { example.run }
   end
+
   config.around(:each, iron_trail: false) do |example|
     raise "Using iron_trail: false does not do what you might think it does. To disable iron_trail, " \
       "use IronTrail::Testing.with_iron_trail(want_enabled: false) { ... } instead."
+  end
+
+  config.before(:each) do
+    IronTrail::Current.reset
   end
 end
