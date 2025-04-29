@@ -7,12 +7,20 @@ class SetupTestDb < ::ActiveRecord::Migration::Current
       t.string :last_name, null: false
       t.string :favorite_planet
       t.bigint :converted_by_pill_id
+      t.bigint :preferred_hotel_id
       t.timestamp :first_acquired_guitar_at
     end
 
     create_table :guitars, id: :uuid, force: true do |t|
       t.bigint :person_id, null: false
       t.string :description, null: false
+    end
+
+    create_table :hotels, id: :bigserial, force: true do |t|
+      t.string :name
+      t.timestamp :current_time
+      t.timestamp :time_in_japan
+      t.date :opening_day
     end
 
     create_table :guitar_parts, id: :bigserial, force: true do |t|
