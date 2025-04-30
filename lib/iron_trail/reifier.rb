@@ -8,9 +8,12 @@ module IronTrail
 
       record = klass.where(id: trail.rec_id).first || klass.new
 
-      source_attributes.each do |name, value|
+      source_attributes.each do |name, serialized_value|
+        attr_type = record.type_for_attribute(name)
+        value = attr_type.deserialize(serialized_value)
+
         if record.has_attribute?(name)
-          record[name.to_sym] = value
+          record[name] = value
         elsif record.respond_to?("#{name}=")
           record.send("#{name}=", value)
         else

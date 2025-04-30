@@ -18,8 +18,8 @@ class SetupTestDb < ::ActiveRecord::Migration::Current
 
     create_table :hotels, id: :bigserial, force: true do |t|
       t.string :name
-      t.timestamp :current_time
-      t.timestamp :time_in_japan
+      t.timestamp :hotel_time
+      t.timestamptz :time_in_japan
       t.date :opening_day
     end
 
