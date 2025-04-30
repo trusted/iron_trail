@@ -5,8 +5,14 @@ RSpec.describe Hotel do
     sql = <<~SQL
     SELECT setval('hotels_id_seq'::regclass, 5000, 't');
 
-    INSERT INTO hotels (id, name, hotel_time, time_in_japan, opening_day) VALUES
-      (100, 'Wonky', '2023-04-25 13:22:54.833 -0700', '2023-07-23 21:22:55.021 +9:00', '1998-03-18');
+    INSERT INTO hotels (id, name, hotel_time, time_in_japan, room_map) VALUES
+      (100, 'Wonky', '2023-04-25 13:22:54.833 -0700', '2023-07-23 21:22:55.021 +9:00', $${
+        "floors": ["Floor 1", "Floor 2", "Gym"],
+        "rooms": {
+          "floor_1_room_22": "User:1234",
+          "floor_2_room_01": "Reserved"
+        }
+      }$$);
 
     UPDATE hotels SET hotel_time='2023-10-12 14:18:29.422', time_in_japan='2023-10-13T17:16:15.021+0200' WHERE id=100;
     SQL
@@ -58,6 +64,40 @@ RSpec.describe Hotel do
     end
   end
 
+  describe 'reifying JSONB columns' do
+    before do
+      ActiveRecord::Base.connection.execute(<<~SQL)
+        UPDATE hotels SET room_map=$${
+            "floors": ["Floor 1", "Floor 2", "Gym"],
+            "rooms": {
+              "floor_1_room_22": "User:9001",
+              "floor_2_room_03": "User:1234",
+              "floor_2_room_01": "User:987654321"
+            }
+          }$$ WHERE id=100;
+
+        UPDATE hotels SET room_map='null'::jsonb WHERE id=100;
+      SQL
+    end
+
+    it 'correctly serializes/deserializes JSONB columns' do
+      expect(hotel.iron_trails.count).to eq(4)
+
+      expect(ordered_trails[-2].reify.room_map).to eq(JSON.parse(<<~JSON))
+        {
+          "floors": ["Floor 1", "Floor 2", "Gym"],
+          "rooms": {
+            "floor_1_room_22": "User:9001",
+            "floor_2_room_03": "User:1234",
+            "floor_2_room_01": "User:987654321"
+          }
+        }
+      JSON
+
+      expect(ordered_trails[-1].reify.room_map).to be(nil)
+    end
+  end
+
   context 'when the hotel has an owner' do
     let(:hotel_owner) { Person.create!(first_name: 'Ada', last_name: 'Lacelove', owns_the_hotel: 100) }
 
@@ -67,12 +107,13 @@ RSpec.describe Hotel do
       hotel.reload
     end
 
-    context 'when there was a owner_person in the old times' do
+    context 'when there was a owner_person column in the old times' do
+      let(:past_owner_person_value) { nil }
       subject(:reify_it) { hotel.iron_trails.inserts.first.reify }
 
       before do
         trail = hotel.iron_trails.inserts.first
-        trail.rec_new['owner_person'] = nil
+        trail.rec_new['owner_person'] = past_owner_person_value
         trail.save!
 
         hotel.reload
@@ -92,6 +133,17 @@ RSpec.describe Hotel do
         expect(reify_it.irontrail_reified_ghost_attributes).to match({
           'owner_person' => nil
         })
+      end
+
+      describe 'non-transformation of ghost attributes' do
+        subject { reify_it.irontrail_reified_ghost_attributes['owner_person'] }
+
+        let(:past_owner_person_value) { '2024-10-27 23:56:10.388451 +5:00' }
+
+        # It would be nice that this timestamp would also be translated correctly,
+        # but it just isn't possible because we don't know which data type it contains.
+        # It's merely a string.
+        it { eq(past_owner_person_value) }
       end
     end
   end

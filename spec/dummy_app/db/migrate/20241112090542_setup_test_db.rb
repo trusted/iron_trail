@@ -20,7 +20,7 @@ class SetupTestDb < ::ActiveRecord::Migration::Current
       t.string :name
       t.timestamp :hotel_time
       t.timestamptz :time_in_japan
-      t.date :opening_day
+      t.jsonb :room_map
     end
 
     create_table :guitar_parts, id: :bigserial, force: true do |t|

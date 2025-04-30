@@ -8,12 +8,10 @@ module IronTrail
 
       record = klass.where(id: trail.rec_id).first || klass.new
 
-      source_attributes.each do |name, serialized_value|
-        attr_type = record.type_for_attribute(name)
-        value = attr_type.deserialize(serialized_value)
-
+      source_attributes.each do |name, value|
         if record.has_attribute?(name)
-          record[name] = value
+          attr_type = record.type_for_attribute(name)
+          record[name] = attr_type.deserialize(value)
         else
           ghost = record.instance_variable_get(:@irontrail_reified_ghost_attributes)
           unless ghost
