@@ -8,8 +8,6 @@ RSpec.describe Hotel do
     INSERT INTO hotels (id, name, hotel_time, time_in_japan, opening_day) VALUES
       (100, 'Wonky', '2023-04-25 13:22:54.833 -0700', '2023-07-23 21:22:55.021 +9:00', '1998-03-18');
 
-    INSERT INTO hotels (id, name, hotel_time, time_in_japan, opening_day) VALUES (200, 'Blurry', '2023-04-25 13:22:54.833 -7:00', '2023-07-23 21:22:55.021 +9:00', '1998-03-18');
-
     UPDATE hotels SET hotel_time='2023-10-12 14:18:29.422', time_in_japan='2023-10-13T17:16:15.021+0200' WHERE id=100;
     SQL
 
