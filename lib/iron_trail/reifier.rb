@@ -14,8 +14,6 @@ module IronTrail
 
         if record.has_attribute?(name)
           record[name] = value
-        elsif record.respond_to?("#{name}=")
-          record.send("#{name}=", value)
         else
           ghost = record.instance_variable_get(:@irontrail_reified_ghost_attributes)
           unless ghost

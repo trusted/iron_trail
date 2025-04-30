@@ -7,7 +7,7 @@ class SetupTestDb < ::ActiveRecord::Migration::Current
       t.string :last_name, null: false
       t.string :favorite_planet
       t.bigint :converted_by_pill_id
-      t.bigint :preferred_hotel_id
+      t.bigint :owns_the_hotel
       t.timestamp :first_acquired_guitar_at
     end
 

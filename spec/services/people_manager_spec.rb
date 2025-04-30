@@ -22,13 +22,13 @@ RSpec.describe PeopleManager do
       all_reflections = Person.reflect_on_all_associations
       only_irontrail = all_reflections.select { |refl| IronTrail::Reflection === refl }
 
-      expect(all_reflections.length).to eq(3)
+      expect(all_reflections.length).to eq(4)
       expect(only_irontrail.length).to eq(1)
     end
 
     it 'is able to list specific reflections' do
       belongs_to_reflections = Person.reflect_on_all_associations(:belongs_to)
-      expect(belongs_to_reflections.length).to eq(1)
+      expect(belongs_to_reflections.length).to eq(2)
     end
 
     it 'is able to list only IronTrail reflections' do

@@ -60,6 +60,44 @@ RSpec.describe Hotel do
     end
   end
 
+  context 'when the hotel has an owner' do
+    let(:hotel_owner) { Person.create!(first_name: 'Ada', last_name: 'Lacelove', owns_the_hotel: 100) }
+
+    before do
+      hotel_owner
+
+      hotel.reload
+    end
+
+    context 'when there was a owner_person in the old times' do
+      subject(:reify_it) { hotel.iron_trails.inserts.first.reify }
+
+      before do
+        trail = hotel.iron_trails.inserts.first
+        trail.rec_new['owner_person'] = nil
+        trail.save!
+
+        hotel.reload
+      end
+
+      it 'does not reify a non-attribute' do
+        expect(hotel.owner_person).to eq(hotel_owner)
+
+        reify_it
+
+        expect(Person.find_by(id: hotel_owner.id)).to eq(hotel_owner)
+      end
+
+      it 'reifies owner_person as a ghost attribute' do
+        reify_it
+
+        expect(reify_it.irontrail_reified_ghost_attributes).to match({
+          'owner_person' => nil
+        })
+      end
+    end
+  end
+
   private
 
   def in_time_zone(new_tz)
