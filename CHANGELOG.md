@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Call `IronTrail::Current.reset` before each spec when using `iron_trail/testing/rspec`
+- Attributes in iron trails won't try to set attributes via send("#{attr_name}=") anymore
+
+### Fixed
+
+- Timestamps are reified correctly when the rails app uses a non-UTC time zone
 
 ## 0.1.4 - 2025-02-24
 

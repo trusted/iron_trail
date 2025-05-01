@@ -10,6 +10,7 @@ RSpec.describe IronTrail::DbFunctions do
       guitars
       matrix_pills
       people
+      hotels
     ]
   end
 

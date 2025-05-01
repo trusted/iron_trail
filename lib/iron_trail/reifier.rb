@@ -10,9 +10,8 @@ module IronTrail
 
       source_attributes.each do |name, value|
         if record.has_attribute?(name)
-          record[name.to_sym] = value
-        elsif record.respond_to?("#{name}=")
-          record.send("#{name}=", value)
+          attr_type = record.type_for_attribute(name)
+          record[name] = attr_type.deserialize(value)
         else
           ghost = record.instance_variable_get(:@irontrail_reified_ghost_attributes)
           unless ghost
