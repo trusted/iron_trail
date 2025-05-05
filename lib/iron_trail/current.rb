@@ -10,6 +10,8 @@ module IronTrail
     end
 
     def self.merge_metadata(keys, merge_hash)
+      raise TypeError.new("value must be a Hash") unless merge_hash.is_a?(Hash)
+
       self.metadata ||= {}
       base = self.metadata
       keys.each do |key|

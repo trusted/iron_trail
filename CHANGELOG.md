@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Call `IronTrail::Current.reset` before each spec when using `iron_trail/testing/rspec`
 - Attributes in iron trails won't try to set attributes via send("#{attr_name}=") anymore
+- IronTrail::Current#merge_metadata now raises a proper error if argument is invalid
 
 ### Fixed
 
