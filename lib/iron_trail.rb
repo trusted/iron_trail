@@ -30,7 +30,9 @@ module IronTrail
 
   module SchemaDumper
     def trailer(stream)
-      stream.print "\n  IronTrail.post_schema_load(self, missing_tracking: @irontrail_missing_track)\n"
+      if IronTrail.enabled?
+        stream.print "\n  IronTrail.post_schema_load(self, missing_tracking: @irontrail_missing_track)\n"
+      end
 
       super(stream)
     end
