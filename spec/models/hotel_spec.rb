@@ -28,6 +28,25 @@ RSpec.describe Hotel do
     expect(ordered_trails).to have_attributes(count: 2)
   end
 
+  describe 'ChangeModelConcern#compute_changeset' do
+    before { hotel }
+
+    let(:cest) { Time.find_zone('Europe/Vienna') }
+    let(:trail) { ordered_trails[1] }
+
+    subject(:changeset) { trail.compute_changeset }
+
+    it 'has the right time in Japan' do
+      expect(changeset['time_in_japan'][0]).to eq(cest.parse('2023-07-23 14:22:55.021'))
+      expect(changeset['time_in_japan'][1]).to eq(cest.parse('2023-10-13T17:16:15.021'))
+    end
+
+    it 'has the right time at the Hotel' do
+      expect(changeset['hotel_time'][0]).to eq(cest.parse('2023-04-25 15:22:54.833'))
+      expect(changeset['hotel_time'][1]).to eq(cest.parse('2023-10-12 16:18:29.422'))
+    end
+  end
+
   describe 'timestamp WITHOUT time zone column' do
     before { hotel }
 
