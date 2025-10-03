@@ -8,6 +8,17 @@ module IronTrail
       Reifier.reify(self)
     end
 
+    # We don't store the class name of the object, but we do store the rec_table.
+    # This method infers the class name from the rec_table and also the "type"
+    # attribute in the stored object in case it's a rails STI class.
+    #
+    # It returns the class instance. Raises an error in case the class couldn't
+    # be inferred.
+    def rec_class
+      source_attributes = (delete_operation? ? rec_old : rec_new)
+      Reifier.model_from_table_name(rec_table, source_attributes.fetch('type', nil))
+    end
+
     def insert_operation? = (operation == 'i')
     def update_operation? = (operation == 'u')
     def delete_operation? = (operation == 'd')
