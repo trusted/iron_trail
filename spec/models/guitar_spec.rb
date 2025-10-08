@@ -11,6 +11,14 @@ RSpec.describe Guitar do
         person.destroy!
       end
 
+      describe '#rec_class' do
+        it 'returns the record model class' do
+          expect(person.iron_trails[0].rec_class).to be(Person) # insert
+          expect(person.iron_trails[1].rec_class).to be(Person) # update
+          expect(person.iron_trails[-1].rec_class).to be(Person) # delete
+        end
+      end
+
       it 'correctly classifies operations' do
         expect(person.iron_trails.length).to eq(4)
         expect(person.iron_trails.inserts.length).to eq(1)

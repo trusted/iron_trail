@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.1.6 - 2025-10-03
+
+### Added
+
+- Add `rec_class` method to `IronTrail::ChangeModelConcern` to infer the record class from the table name and type attribute 
+- Add `compute_changeset` method to `IronTrail::ChangeModelConcern` to get properly deserialized attribute changes
+- Add PostgreSQL 18 to the CI test matrix
+
 ## 0.1.5 - 2025-05-30
 
 ### Added

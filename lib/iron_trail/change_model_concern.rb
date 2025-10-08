@@ -4,13 +4,49 @@ module IronTrail
   module ChangeModelConcern
     extend ::ActiveSupport::Concern
 
+    def insert_operation? = (operation == 'i')
+    def update_operation? = (operation == 'u')
+    def delete_operation? = (operation == 'd')
+
     def reify
       Reifier.reify(self)
     end
 
-    def insert_operation? = (operation == 'i')
-    def update_operation? = (operation == 'u')
-    def delete_operation? = (operation == 'd')
+    # We don't store the class name of the object, but we do store the rec_table.
+    # This method infers the class name from the rec_table and also the "type"
+    # attribute in the stored object in case it's a rails STI class.
+    #
+    # It returns the class instance. Raises an error in case the class couldn't
+    # be inferred.
+    def rec_class
+      source_attributes = (delete_operation? ? rec_old : rec_new)
+      Reifier.model_from_table_name(rec_table, source_attributes.fetch('type', nil))
+    end
+
+    # This mimics the method with the same name available in the papertrail gem.
+    # It is an extended rec_delta, where attributes values are properly deserialized
+    # as rails' ActiveRecord would do.
+    #
+    # For instance, timestamps are serialized as strings in JSON, so rec_delta
+    # would return strings for timestamps. Using this method, it'd return a proper
+    # timestamp deserialized from the string.
+    #
+    # This method doesn't do caching and always computes the full thing. It's
+    # up to the user to perform caching if wanted.
+    def compute_changeset
+      return nil unless update_operation?
+
+      klass = rec_class
+
+      HashWithIndifferentAccess.new.tap do |changes|
+        rec_delta.each do |col_name, in_delta|
+          type_class = klass.type_for_attribute(col_name)
+          out_delta = in_delta.map { |val| type_class.deserialize(val) }
+
+          changes[col_name] = out_delta
+        end
+      end
+    end
 
     module ClassMethods
       def where_object_changes_to(args = {})
