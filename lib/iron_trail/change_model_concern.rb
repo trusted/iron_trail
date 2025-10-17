@@ -35,6 +35,7 @@ module IronTrail
     # up to the user to perform caching if wanted.
     def compute_changeset
       return nil unless update_operation?
+      return nil unless rec_delta.present?
 
       klass = rec_class
 
