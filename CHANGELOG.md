@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.1.8 - 2025-10-22
+
+### Changed
+
+- Undid last changes to `compute_changeset`. It will respect the semantics of `rec_delta`
+
 ## 0.1.7 - 2025-10-13
 
 ### Fixed

@@ -1,5 +1,5 @@
 # frozen_literal_string: true
 
 module IronTrail
-  VERSION = '0.1.7'
+  VERSION = '0.1.8'
 end
