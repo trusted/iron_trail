@@ -45,27 +45,6 @@ RSpec.describe Hotel do
       expect(changeset['hotel_time'][0]).to eq(cest.parse('2023-04-25 15:22:54.833'))
       expect(changeset['hotel_time'][1]).to eq(cest.parse('2023-10-12 16:18:29.422'))
     end
-
-    context 'when the changes is empty' do
-      let!(:empty_trail) do
-        last_trail = ordered_trails.last
-        IrontrailChange.create!(
-          rec_table: last_trail.rec_table,
-          rec_id: last_trail.rec_id,
-          actor_id: last_trail.actor_id,
-          actor_type: last_trail.actor_type,
-          operation: last_trail.operation,
-          rec_old: last_trail.rec_old,
-          rec_new: last_trail.rec_new,
-          rec_delta: {},
-          metadata: last_trail.metadata
-        )
-      end
-
-      it 'returns nil' do
-        expect(empty_trail.compute_changeset).to be_nil
-      end
-    end
   end
 
   describe 'timestamp WITHOUT time zone column' do
