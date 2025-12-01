@@ -24,6 +24,100 @@ The gem is not necessary for the capture to work, but it provides a few niceties
 such as allowing metadata (e.g. currently logged in user, current request info)
 to be tracked and easy setup and testing utilities.
 
+## Extensions
+
+IronTrail supports extensions, which allow you to execute custom PostgreSQL functions
+after each change is logged. This is useful for implementing custom business logic,
+notifications, or data transformations that need to happen immediately after a change
+is captured.
+
+### How Extensions Work
+
+After every insert into the `irontrail_changes` table, the trigger function automatically
+queries the `irontrail_extensions` table to find any registered extension functions for
+that specific table. If any enabled extensions are found, they are executed in order.
+
+### Setting Up an Extension
+
+1. First, create your custom PostgreSQL function that will be called. The function must
+   accept three parameters:
+   - `change_id` (BIGINT) - The ID of the newly created irontrail_changes record
+   - `rec_table` (TEXT) - The name of the table that was changed
+   - `operation` (TEXT) - The operation type ('i' for insert, 'u' for update, 'd' for delete)
+
+   To access the record data, query the `irontrail_changes` table using the provided `change_id`.
+
+Example extension function:
+
+```sql
+CREATE OR REPLACE FUNCTION notify_user_changes(
+  change_id BIGINT,
+  rec_table TEXT,
+  operation TEXT
+) RETURNS VOID AS $$
+DECLARE
+  change_record RECORD;
+BEGIN
+  -- Query the change data using the change_id
+  SELECT rec_old, rec_new INTO change_record
+  FROM irontrail_changes
+  WHERE id = change_id;
+
+  -- Your custom logic here
+  IF operation = 'u' THEN
+    RAISE NOTICE 'User % changed from % to %', 
+      change_record.rec_new->>'id', 
+      change_record.rec_old->>'email', 
+      change_record.rec_new->>'email';
+  ELSIF operation = 'i' THEN
+    RAISE NOTICE 'New user % created: %', 
+      change_record.rec_new->>'id', 
+      change_record.rec_new->>'email';
+  ELSIF operation = 'd' THEN
+    RAISE NOTICE 'User % deleted: %', 
+      change_record.rec_old->>'id', 
+      change_record.rec_old->>'email';
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+2. Register the extension in the `irontrail_extensions` table:
+
+```sql
+INSERT INTO irontrail_extensions (rec_table, function_name, enabled, created_at, updated_at)
+VALUES ('users', 'notify_user_changes', true, NOW(), NOW());
+```
+
+Or in Ruby/Rails:
+
+```ruby
+ActiveRecord::Base.connection.execute(<<~SQL)
+  INSERT INTO irontrail_extensions (rec_table, function_name, enabled, created_at, updated_at)
+  VALUES ('users', 'notify_user_changes', true, NOW(), NOW())
+SQL
+```
+
+3. Now, every time a change is made to the `users` table, your `notify_user_changes`
+   function will be called automatically.
+
+### Disabling an Extension
+
+To temporarily disable an extension without removing it:
+
+```sql
+UPDATE irontrail_extensions 
+SET enabled = false 
+WHERE rec_table = 'users' AND function_name = 'notify_user_changes';
+```
+
+### Important Notes
+
+- Extension functions are executed within the same transaction as the change
+- If an extension function raises an exception, the entire transaction (including the original change) will be rolled back
+- Extension functions should be fast and efficient to avoid performance issues
+- You can have multiple extensions for the same table - they will all be executed
+
 ## Install
 
 Just add to your Gemfile:
