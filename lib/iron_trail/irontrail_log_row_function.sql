@@ -14,6 +14,7 @@ DECLARE
   created_at TIMESTAMP;
   change_id BIGINT;
   ext_func_name TEXT;
+  operation_char TEXT;
 
   err_text TEXT; err_detail TEXT; err_hint TEXT; err_ctx TEXT;
 BEGIN
@@ -55,15 +56,8 @@ BEGIN
         VALUES (actor_id, actor_type,
           TG_TABLE_NAME, 'i', NEW.id, new_obj, it_meta_obj, created_at)
         RETURNING id INTO change_id;
-
-        FOR ext_func_name IN 
-          SELECT function_name 
-          FROM irontrail_extensions 
-          WHERE rec_table = TG_TABLE_NAME::TEXT AND enabled = true
-        LOOP
-          EXECUTE format('SELECT %I($1, $2, $3)', ext_func_name) 
-            USING change_id, TG_TABLE_NAME::TEXT, 'i';
-        END LOOP;
+        
+        operation_char = 'i';
 
     ELSIF (TG_OP = 'UPDATE') THEN
         IF (OLD <> NEW) THEN
@@ -82,15 +76,8 @@ BEGIN
             "rec_id", "rec_old", "rec_new", "rec_delta", "metadata", "created_at")
           VALUES (actor_id, actor_type, TG_TABLE_NAME, 'u', NEW.id, old_obj, new_obj, u_changes, it_meta_obj, created_at)
           RETURNING id INTO change_id;
-
-          FOR ext_func_name IN 
-            SELECT function_name 
-            FROM irontrail_extensions 
-            WHERE rec_table = TG_TABLE_NAME::TEXT AND enabled = true
-          LOOP
-            EXECUTE format('SELECT %I($1, $2, $3)', ext_func_name) 
-              USING change_id, TG_TABLE_NAME::TEXT, 'u';
-          END LOOP;
+          
+          operation_char = 'u';
 
         END IF;
     ELSIF (TG_OP = 'DELETE') THEN
@@ -98,16 +85,37 @@ BEGIN
           "rec_id", "rec_old", "metadata", "created_at")
         VALUES (actor_id, actor_type, TG_TABLE_NAME, 'd', OLD.id, old_obj, it_meta_obj, created_at)
         RETURNING id INTO change_id;
+        
+        operation_char = 'd';
+    END IF;
 
+    IF (change_id IS NOT NULL) THEN
         FOR ext_func_name IN 
           SELECT function_name 
           FROM irontrail_extensions 
           WHERE rec_table = TG_TABLE_NAME::TEXT AND enabled = true
         LOOP
-          EXECUTE format('SELECT %I($1, $2, $3)', ext_func_name) 
-            USING change_id, TG_TABLE_NAME::TEXT, 'd';
+          BEGIN
+            EXECUTE format('SELECT %I($1, $2, $3)', ext_func_name) 
+              USING change_id, TG_TABLE_NAME::TEXT, operation_char;
+          EXCEPTION
+            WHEN OTHERS THEN
+              GET STACKED DIAGNOSTICS
+                err_text = MESSAGE_TEXT,
+                err_detail = PG_EXCEPTION_DETAIL,
+                err_hint = PG_EXCEPTION_HINT,
+                err_ctx = PG_EXCEPTION_CONTEXT;
+              
+              INSERT INTO "irontrail_trigger_errors" ("pg_errcode", "pg_message",
+                  "err_text", "ex_detail", "ex_hint", "ex_ctx", "op", "table_name",
+                  "old_data", "new_data", "query", "created_at")
+                VALUES (SQLSTATE, SQLERRM, err_text, err_detail, err_hint, 
+                  'Extension: ' || ext_func_name || E'\n' || err_ctx,
+                  TG_OP, TG_TABLE_NAME, row_to_json(OLD), row_to_json(NEW), 
+                  'Extension function: ' || ext_func_name || ' for change_id: ' || change_id, 
+                  STATEMENT_TIMESTAMP());
+          END;
         END LOOP;
-
     END IF;
     RETURN NULL;
 EXCEPTION

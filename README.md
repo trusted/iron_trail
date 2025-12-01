@@ -37,6 +37,10 @@ After every insert into the `irontrail_changes` table, the trigger function auto
 queries the `irontrail_extensions` table to find any registered extension functions for
 that specific table. If any enabled extensions are found, they are executed in order.
 
+Each extension function runs with its own exception handling, so if one extension fails,
+it gets logged to `irontrail_trigger_errors` and the remaining extensions continue to execute.
+This ensures that a buggy extension cannot break your change logging or affect other extensions.
+
 ### Setting Up an Extension
 
 1. First, create your custom PostgreSQL function that will be called. The function must
@@ -111,12 +115,33 @@ SET enabled = false
 WHERE rec_table = 'users' AND function_name = 'notify_user_changes';
 ```
 
+### Extension Error Handling
+
+When an extension function encounters an error, IronTrail automatically catches the exception
+and logs it to the `irontrail_trigger_errors` table without affecting the change logging or
+other extensions. The error log includes:
+
+- The extension function name
+- The `change_id` that was being processed
+- Full PostgreSQL error details (error code, message, detail, hint, context)
+- The OLD and NEW row data for debugging
+
+To view extension errors:
+
+```sql
+SELECT * FROM irontrail_trigger_errors 
+WHERE query LIKE 'Extension function:%' 
+ORDER BY created_at DESC;
+```
+
 ### Important Notes
 
 - Extension functions are executed within the same transaction as the change
-- If an extension function raises an exception, the entire transaction (including the original change) will be rolled back
+- If an extension function raises an exception, it will be caught and logged to the `irontrail_trigger_errors` table
+- Extension failures do NOT prevent the change from being logged or affect other extensions
+- Other extensions will continue to execute even if one fails
 - Extension functions should be fast and efficient to avoid performance issues
-- You can have multiple extensions for the same table - they will all be executed
+- You can have multiple extensions for the same table - they will all be executed in order
 
 ## Install
 
