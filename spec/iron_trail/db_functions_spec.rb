@@ -11,7 +11,7 @@ RSpec.describe IronTrail::DbFunctions do
       matrix_pills
       people
       hotels
-    ]
+    ] + IronTrail::OWN_TRACKABLE_TABLES
   end
 
   describe '#collect_all_tables' do
@@ -66,7 +66,7 @@ RSpec.describe IronTrail::DbFunctions do
           begin
             IronTrail.config.instance_variable_set(:@ignored_tables, test_ignored_tables)
 
-            expect(statuses[:tracked]).to contain_exactly(*(default_tables))
+            expect(statuses[:tracked]).to contain_exactly(*default_tables)
             expect(statuses[:missing]).to be_empty
           ensure
             IronTrail.config.instance_variable_set(:@ignored_tables, orig_ignored_tables)
@@ -97,7 +97,6 @@ RSpec.describe IronTrail::DbFunctions do
         expect(table_names).to contain_exactly(*default_tables)
       end
     end
-
   end
 
   describe '#trigger_errors_count' do
@@ -108,7 +107,7 @@ RSpec.describe IronTrail::DbFunctions do
     context 'when it is not empty' do
       before do
         connection.execute(<<~SQL)
-        INSERT INTO "irontrail_trigger_errors" (query) VALUES ('foo');
+          INSERT INTO "irontrail_trigger_errors" (query) VALUES ('foo');
         SQL
       end
 
@@ -124,24 +123,24 @@ RSpec.describe IronTrail::DbFunctions do
     it 'is has zero values when there are no trigger errors' do
       expect(metrics).to be_a(Hash)
       expect(metrics).to eq({
-        max_created_at: 0,
-        max_id: 0,
-      })
+                              max_created_at: 0,
+                              max_id: 0
+                            })
     end
 
     context 'when there are trigger errors' do
       before do
         connection.execute(<<~SQL)
-        INSERT INTO "irontrail_trigger_errors" (id, query, created_at) VALUES
-          (42, 'foo', '2023-06-15T12:01:03Z');
+          INSERT INTO "irontrail_trigger_errors" (id, query, created_at) VALUES
+            (42, 'foo', '2023-06-15T12:01:03Z');
         SQL
       end
 
       it 'matches the max created_at and ids' do
         expect(metrics).to eq({
-          max_id: 42,
-          max_created_at: Time.parse('2023-06-15T12:01:03Z').to_i,
-        })
+                                max_id: 42,
+                                max_created_at: Time.parse('2023-06-15T12:01:03Z').to_i
+                              })
       end
     end
   end
