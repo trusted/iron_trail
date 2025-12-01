@@ -12,6 +12,8 @@ DECLARE
   actor_type TEXT;
   actor_id TEXT;
   created_at TIMESTAMP;
+  change_id BIGINT;
+  ext_func_name TEXT;
 
   err_text TEXT; err_detail TEXT; err_hint TEXT; err_ctx TEXT;
 BEGIN
@@ -51,7 +53,17 @@ BEGIN
         INSERT INTO "irontrail_changes" ("actor_id", "actor_type",
           "rec_table", "operation", "rec_id", "rec_new", "metadata", "created_at")
         VALUES (actor_id, actor_type,
-          TG_TABLE_NAME, 'i', NEW.id, new_obj, it_meta_obj, created_at);
+          TG_TABLE_NAME, 'i', NEW.id, new_obj, it_meta_obj, created_at)
+        RETURNING id INTO change_id;
+
+        FOR ext_func_name IN 
+          SELECT function_name 
+          FROM irontrail_extensions 
+          WHERE rec_table = TG_TABLE_NAME::TEXT AND enabled = true
+        LOOP
+          EXECUTE format('SELECT %I($1, $2, $3)', ext_func_name) 
+            USING change_id, TG_TABLE_NAME::TEXT, 'i';
+        END LOOP;
 
     ELSIF (TG_OP = 'UPDATE') THEN
         IF (OLD <> NEW) THEN
@@ -68,13 +80,33 @@ BEGIN
 
           INSERT INTO "irontrail_changes" ("actor_id", "actor_type", "rec_table", "operation",
             "rec_id", "rec_old", "rec_new", "rec_delta", "metadata", "created_at")
-          VALUES (actor_id, actor_type, TG_TABLE_NAME, 'u', NEW.id, old_obj, new_obj, u_changes, it_meta_obj, created_at);
+          VALUES (actor_id, actor_type, TG_TABLE_NAME, 'u', NEW.id, old_obj, new_obj, u_changes, it_meta_obj, created_at)
+          RETURNING id INTO change_id;
+
+          FOR ext_func_name IN 
+            SELECT function_name 
+            FROM irontrail_extensions 
+            WHERE rec_table = TG_TABLE_NAME::TEXT AND enabled = true
+          LOOP
+            EXECUTE format('SELECT %I($1, $2, $3)', ext_func_name) 
+              USING change_id, TG_TABLE_NAME::TEXT, 'u';
+          END LOOP;
 
         END IF;
     ELSIF (TG_OP = 'DELETE') THEN
         INSERT INTO "irontrail_changes" ("actor_id", "actor_type", "rec_table", "operation",
           "rec_id", "rec_old", "metadata", "created_at")
-        VALUES (actor_id, actor_type, TG_TABLE_NAME, 'd', OLD.id, old_obj, it_meta_obj, created_at);
+        VALUES (actor_id, actor_type, TG_TABLE_NAME, 'd', OLD.id, old_obj, it_meta_obj, created_at)
+        RETURNING id INTO change_id;
+
+        FOR ext_func_name IN 
+          SELECT function_name 
+          FROM irontrail_extensions 
+          WHERE rec_table = TG_TABLE_NAME::TEXT AND enabled = true
+        LOOP
+          EXECUTE format('SELECT %I($1, $2, $3)', ext_func_name) 
+            USING change_id, TG_TABLE_NAME::TEXT, 'd';
+        END LOOP;
 
     END IF;
     RETURN NULL;
