@@ -92,7 +92,7 @@ BEGIN
     IF (change_id IS NOT NULL) THEN
         FOR ext_func_name IN 
           SELECT function_name 
-          FROM irontrail_extensions 
+          FROM irontrail_change_callbacks 
           WHERE rec_table = TG_TABLE_NAME::TEXT AND enabled = true
         LOOP
           BEGIN

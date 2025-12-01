@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class IrontrailExtension < ApplicationRecord
+class IrontrailChangeCallback < ApplicationRecord
   include IronTrail::Model
 
   validates :rec_table, presence: true

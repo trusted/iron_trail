@@ -29,7 +29,7 @@ module IronTrail
   ].freeze
 
   OWN_TRACKABLE_TABLES = %w[
-    irontrail_extensions
+    irontrail_change_callbacks
   ].freeze
 
   module SchemaDumper

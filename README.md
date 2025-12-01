@@ -34,7 +34,7 @@ is captured.
 ### How Extensions Work
 
 After every insert into the `irontrail_changes` table, the trigger function automatically
-queries the `irontrail_extensions` table to find any registered extension functions for
+queries the `irontrail_change_callbacks` table to find any registered extension functions for
 that specific table. If any enabled extensions are found, they are executed in order.
 
 Each extension function runs with its own exception handling, so if one extension fails,
@@ -86,10 +86,10 @@ END;
 $$ LANGUAGE plpgsql;
 ```
 
-2. Register the extension in the `irontrail_extensions` table:
+2. Register the extension in the `irontrail_change_callbacks` table:
 
 ```sql
-INSERT INTO irontrail_extensions (rec_table, function_name, enabled, created_at, updated_at)
+INSERT INTO irontrail_change_callbacks (rec_table, function_name, enabled, created_at, updated_at)
 VALUES ('users', 'notify_user_changes', true, NOW(), NOW());
 ```
 
@@ -97,7 +97,7 @@ Or in Ruby/Rails:
 
 ```ruby
 ActiveRecord::Base.connection.execute(<<~SQL)
-  INSERT INTO irontrail_extensions (rec_table, function_name, enabled, created_at, updated_at)
+  INSERT INTO irontrail_change_callbacks (rec_table, function_name, enabled, created_at, updated_at)
   VALUES ('users', 'notify_user_changes', true, NOW(), NOW())
 SQL
 ```
@@ -110,7 +110,7 @@ SQL
 To temporarily disable an extension without removing it:
 
 ```sql
-UPDATE irontrail_extensions 
+UPDATE irontrail_change_callbacks 
 SET enabled = false 
 WHERE rec_table = 'users' AND function_name = 'notify_user_changes';
 ```

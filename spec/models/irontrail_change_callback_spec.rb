@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe IrontrailExtension, iron_trail: true do
+RSpec.describe IrontrailChangeCallback, iron_trail: true do
   before(:all) do
     # Create a test extension function that logs to a test table
     ActiveRecord::Base.connection.execute(<<~SQL)
@@ -41,7 +41,7 @@ RSpec.describe IrontrailExtension, iron_trail: true do
   describe 'extension execution' do
     context 'when extension is enabled' do
       before do
-        IrontrailExtension.create!(
+        IrontrailChangeCallback.create!(
           rec_table: 'people',
           function_name: 'test_extension_function',
           enabled: true
@@ -112,7 +112,7 @@ RSpec.describe IrontrailExtension, iron_trail: true do
 
     context 'when extension is disabled' do
       before do
-        IrontrailExtension.create!(
+        IrontrailChangeCallback.create!(
           rec_table: 'people',
           function_name: 'test_extension_function',
           enabled: false
@@ -143,12 +143,12 @@ RSpec.describe IrontrailExtension, iron_trail: true do
           $$ LANGUAGE plpgsql;
         SQL
 
-        IrontrailExtension.create!(
+        IrontrailChangeCallback.create!(
           rec_table: 'people',
           function_name: 'test_extension_function',
           enabled: true
         )
-        IrontrailExtension.create!(
+        IrontrailChangeCallback.create!(
           rec_table: 'people',
           function_name: 'test_extension_function_2',
           enabled: true
@@ -173,7 +173,7 @@ RSpec.describe IrontrailExtension, iron_trail: true do
 
     context 'when extension is registered for different table' do
       before do
-        IrontrailExtension.create!(
+        IrontrailChangeCallback.create!(
           rec_table: 'hotels',
           function_name: 'test_extension_function',
           enabled: true
@@ -191,48 +191,48 @@ RSpec.describe IrontrailExtension, iron_trail: true do
 
   describe 'model validations and scopes' do
     it 'validates presence of rec_table' do
-      extension = IrontrailExtension.new(function_name: 'test_func')
+      extension = IrontrailChangeCallback.new(function_name: 'test_func')
       expect(extension).not_to be_valid
       expect(extension.errors[:rec_table]).to be_present
     end
 
     it 'validates presence of function_name' do
-      extension = IrontrailExtension.new(rec_table: 'users')
+      extension = IrontrailChangeCallback.new(rec_table: 'users')
       expect(extension).not_to be_valid
       expect(extension.errors[:function_name]).to be_present
     end
 
     describe '.enabled' do
       it 'returns only enabled extensions' do
-        IrontrailExtension.create!(
+        IrontrailChangeCallback.create!(
           rec_table: 'users',
           function_name: 'func1',
           enabled: true
         )
-        IrontrailExtension.create!(
+        IrontrailChangeCallback.create!(
           rec_table: 'users',
           function_name: 'func2',
           enabled: false
         )
 
-        expect(IrontrailExtension.enabled.pluck(:function_name)).to eq(['func1'])
+        expect(IrontrailChangeCallback.enabled.pluck(:function_name)).to eq(['func1'])
       end
     end
 
     describe '.for_table' do
       it 'returns extensions for specific table' do
-        IrontrailExtension.create!(
+        IrontrailChangeCallback.create!(
           rec_table: 'users',
           function_name: 'func1',
           enabled: true
         )
-        IrontrailExtension.create!(
+        IrontrailChangeCallback.create!(
           rec_table: 'people',
           function_name: 'func2',
           enabled: true
         )
 
-        expect(IrontrailExtension.for_table('people').pluck(:function_name)).to eq(['func2'])
+        expect(IrontrailChangeCallback.for_table('people').pluck(:function_name)).to eq(['func2'])
       end
     end
   end
