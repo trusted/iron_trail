@@ -1,5 +1,5 @@
 class CreateIrontrailChangeCallbacks < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version %>]
-  def change
+  def up
     create_table :irontrail_change_callbacks, id: :bigserial do |t|
       t.column :rec_table, :text, null: false
       t.column :function_name, :text, null: false
@@ -10,5 +10,17 @@ class CreateIrontrailChangeCallbacks < ActiveRecord::Migration[<%= ActiveRecord:
 
     add_index :irontrail_change_callbacks, :rec_table
     add_index :irontrail_change_callbacks, [:rec_table, :enabled]
+
+    IronTrail::DbFunctions.new(connection).tap do |db_fun|
+      db_fun.install_function('irontrail_log_row_function_with_callbacks')
+    end
+  end
+
+  def down
+    drop_table :irontrail_change_callbacks
+
+    IronTrail::DbFunctions.new(connection).tap do |db_fun|
+      db_fun.install_function('irontrail_log_row_function')
+    end
   end
 end

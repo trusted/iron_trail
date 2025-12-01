@@ -8,6 +8,12 @@ module IronTrail
       @connection = connection
     end
 
+    def install_function(function_name)
+      path = File.expand_path("#{function_name}.sql", __dir__)
+      sql = File.read(path)
+      connection.execute(sql)
+    end
+
     # Creates the SQL functions in the DB. It will not run the function or create
     # any triggers.
     def install_functions
