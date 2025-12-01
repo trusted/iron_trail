@@ -28,6 +28,10 @@ module IronTrail
     irontrail_changes
   ].freeze
 
+  OWN_TRACKABLE_TABLES = %w[
+    irontrail_extensions
+  ].freeze
+
   module SchemaDumper
     def trailer(stream)
       if IronTrail.enabled?
