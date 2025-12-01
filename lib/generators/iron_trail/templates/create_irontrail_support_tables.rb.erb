@@ -14,16 +14,5 @@ class CreateIrontrailSupportTables < ActiveRecord::Migration[<%= ActiveRecord::M
       t.column :query, :text
       t.column :created_at, :timestamp
     end
-
-    create_table :irontrail_change_callbacks, id: :bigserial do |t|
-      t.column :rec_table, :text, null: false
-      t.column :function_name, :text, null: false
-      t.column :enabled, :boolean, default: true, null: false
-      t.column :created_at, :timestamp
-      t.column :updated_at, :timestamp
-    end
-
-    add_index :irontrail_change_callbacks, :rec_table
-    add_index :irontrail_change_callbacks, [:rec_table, :enabled]
   end
 end
