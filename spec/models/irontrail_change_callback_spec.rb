@@ -4,7 +4,6 @@ require 'spec_helper'
 
 RSpec.describe IrontrailChangeCallback, iron_trail: true do
   before(:all) do
-    # Create a test extension function that logs to a test table
     ActiveRecord::Base.connection.execute(<<~SQL)
       CREATE TABLE IF NOT EXISTS extension_test_log (
         id BIGSERIAL PRIMARY KEY,
@@ -129,7 +128,6 @@ RSpec.describe IrontrailChangeCallback, iron_trail: true do
 
     context 'when multiple extensions are registered for the same table' do
       before do
-        # Create another test function
         ActiveRecord::Base.connection.execute(<<~SQL)
           CREATE OR REPLACE FUNCTION test_extension_function_2(
             p_change_id BIGINT,
@@ -185,6 +183,128 @@ RSpec.describe IrontrailChangeCallback, iron_trail: true do
 
         logs = ActiveRecord::Base.connection.execute('SELECT * FROM extension_test_log').to_a
         expect(logs.size).to eq(0)
+      end
+    end
+
+    context 'when an extension function fails' do
+      before do
+        ActiveRecord::Base.connection.execute(<<~SQL)
+          CREATE OR REPLACE FUNCTION test_failing_extension(
+            p_change_id BIGINT,
+            p_rec_table TEXT,
+            p_operation TEXT
+          ) RETURNS VOID AS $$
+          BEGIN
+            RAISE EXCEPTION 'Extension intentionally failed for testing';
+          END;
+          $$ LANGUAGE plpgsql;
+        SQL
+
+        ActiveRecord::Base.connection.execute(<<~SQL)
+          CREATE OR REPLACE FUNCTION test_successful_extension(
+            p_change_id BIGINT,
+            p_rec_table TEXT,
+            p_operation TEXT
+          ) RETURNS VOID AS $$
+          BEGIN
+            INSERT INTO extension_test_log (change_id, rec_table, operation)
+            VALUES (p_change_id, 'success', p_operation);
+          END;
+          $$ LANGUAGE plpgsql;
+        SQL
+
+        IrontrailChangeCallback.create!(
+          rec_table: 'people',
+          function_name: 'test_failing_extension',
+          enabled: true
+        )
+
+        IrontrailChangeCallback.create!(
+          rec_table: 'people',
+          function_name: 'test_successful_extension',
+          enabled: true
+        )
+      end
+
+      after do
+        ActiveRecord::Base.connection.execute(
+          'DROP FUNCTION IF EXISTS test_failing_extension(BIGINT, TEXT, TEXT)'
+        )
+        ActiveRecord::Base.connection.execute(
+          'DROP FUNCTION IF EXISTS test_successful_extension(BIGINT, TEXT, TEXT)'
+        )
+      end
+
+      it 'logs the error but continues executing other extensions and persists the change' do
+        ActiveRecord::Base.connection.execute('TRUNCATE irontrail_trigger_errors')
+
+        person = Person.create!(first_name: 'John', last_name: 'Doe')
+
+        change = IrontrailChange.where(rec_table: 'people', rec_id: person.id.to_s).order(created_at: :desc).first
+        expect(change).to be_present
+        expect(change.rec_new['first_name']).to eq('John')
+        expect(change.rec_new['last_name']).to eq('Doe')
+
+        logs = ActiveRecord::Base.connection.execute('SELECT * FROM extension_test_log').to_a
+        expect(logs.size).to eq(1)
+        expect(logs.first['rec_table']).to eq('success')
+
+        errors = ActiveRecord::Base.connection.execute(
+          "SELECT * FROM irontrail_trigger_errors WHERE query LIKE 'Extension function:%'"
+        ).to_a
+        expect(errors.size).to eq(1)
+        expect(errors.first['query']).to include('test_failing_extension')
+        expect(errors.first['pg_message']).to include('Extension intentionally failed for testing')
+        expect(errors.first['ex_ctx']).to include('Extension: test_failing_extension')
+        expect(errors.first['table_name']).to eq('people')
+        expect(errors.first['op']).to eq('INSERT')
+      end
+
+      it 'handles failures on update operations' do
+        person = Person.create!(first_name: 'John', last_name: 'Doe')
+
+        ActiveRecord::Base.connection.execute('TRUNCATE extension_test_log')
+        ActiveRecord::Base.connection.execute('TRUNCATE irontrail_trigger_errors')
+
+        person.update!(first_name: 'Jane')
+
+        change = IrontrailChange.where(rec_table: 'people', rec_id: person.id.to_s,
+                                       operation: 'u').order(created_at: :desc).first
+        expect(change).to be_present
+        expect(change.rec_old['first_name']).to eq('John')
+        expect(change.rec_new['first_name']).to eq('Jane')
+
+        logs = ActiveRecord::Base.connection.execute('SELECT * FROM extension_test_log').to_a
+        expect(logs.size).to eq(1)
+
+        errors = ActiveRecord::Base.connection.execute(
+          "SELECT * FROM irontrail_trigger_errors WHERE query LIKE 'Extension function:%'"
+        ).to_a
+        expect(errors.size).to eq(1)
+        expect(errors.first['op']).to eq('UPDATE')
+      end
+
+      it 'handles failures on delete operations' do
+        person = Person.create!(first_name: 'John', last_name: 'Doe')
+
+        ActiveRecord::Base.connection.execute('TRUNCATE extension_test_log')
+        ActiveRecord::Base.connection.execute('TRUNCATE irontrail_trigger_errors')
+
+        person.destroy!
+
+        change = IrontrailChange.where(rec_table: 'people', rec_id: person.id.to_s,
+                                       operation: 'd').order(created_at: :desc).first
+        expect(change).to be_present
+        expect(change.rec_old['first_name']).to eq('John')
+
+        logs = ActiveRecord::Base.connection.execute('SELECT * FROM extension_test_log').to_a
+        expect(logs.size).to eq(1)
+
+        errors = ActiveRecord::Base.connection.execute(
+          "SELECT * FROM irontrail_trigger_errors WHERE query LIKE 'Extension function:%'"
+        ).to_a
+        expect(errors.size).to eq(1)
+        expect(errors.first['op']).to eq('DELETE')
       end
     end
   end
