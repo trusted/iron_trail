@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `ignored_databases` configuration option to skip IronTrail for specific databases in multi-db setups. Works symmetrically with `ignored_tables`. Schema dumps and migration triggers are skipped for ignored databases.
 
+## 0.1.9 - 2026-02-27
+
+### Changed
+
+- Bumped versions of dependencies in gemspec and github workflows
+
 ## 0.1.8 - 2025-10-22
 
 ### Changed
@@ -29,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add `rec_class` method to `IronTrail::ChangeModelConcern` to infer the record class from the table name and type attribute 
+- Add `rec_class` method to `IronTrail::ChangeModelConcern` to infer the record class from the table name and type attribute
 - Add `compute_changeset` method to `IronTrail::ChangeModelConcern` to get properly deserialized attribute changes
 - Add PostgreSQL 18 to the CI test matrix
 
