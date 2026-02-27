@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.2.0 - 2026-02-26
+
+### Added
+
+- Add `ignored_databases` configuration option to skip IronTrail for specific databases in multi-db setups. Works symmetrically with `ignored_tables`. Schema dumps and migration triggers are skipped for ignored databases.
+
 ## 0.1.8 - 2025-10-22
 
 ### Changed

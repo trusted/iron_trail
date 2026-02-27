@@ -30,7 +30,9 @@ module IronTrail
 
   module SchemaDumper
     def trailer(stream)
-      if IronTrail.enabled?
+      db_name = @connection.pool.db_config.name
+
+      if IronTrail.enabled? && !IronTrail.ignore_database?(db_name)
         stream.print "\n  IronTrail.post_schema_load(self, missing_tracking: @irontrail_missing_track)\n"
       end
 
@@ -55,6 +57,10 @@ module IronTrail
 
     def ignore_table?(name)
       (OWN_TABLES + (config.ignored_tables || [])).include?(name)
+    end
+
+    def ignore_database?(name)
+      (config.ignored_databases || []).include?(name.to_s)
     end
 
     def post_schema_load(context, missing_tracking: nil)

@@ -15,12 +15,13 @@ module IronTrail
       :enable,
       :track_migrations_starting_at_version
 
-    attr_reader :ignored_tables
+    attr_reader :ignored_tables, :ignored_databases
 
     def initialize
       @enable = true
       @track_by_default = true
       @ignored_tables = DEFAULT_IGNORED_TABLES.dup
+      @ignored_databases = []
       @track_migrations_starting_at_version = nil
     end
 
@@ -30,6 +31,10 @@ module IronTrail
     # should that be desired.
     def ignored_tables=(v)
       raise 'Overwriting ignored_tables is not allow. Instead, add or remove to it explicitly.'
+    end
+
+    def ignored_databases=(v)
+      raise 'Overwriting ignored_databases is not allowed. Instead, add or remove to it explicitly.'
     end
   end
 end
