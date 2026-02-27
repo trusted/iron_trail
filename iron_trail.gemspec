@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'appraisal', '~> 2.5'
 
   s.add_development_dependency 'rake', '~> 13.2'
-  s.add_development_dependency 'rspec-rails', '~> 7.1'
+  s.add_development_dependency 'rspec-rails', '>= 7.1', '< 9'
   s.add_development_dependency 'pg', '~> 1.2'
   s.add_development_dependency 'json', '~> 2.8'
   s.add_development_dependency 'sidekiq', '~> 7.2'
