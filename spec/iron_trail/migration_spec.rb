@@ -33,8 +33,6 @@ RSpec.describe IronTrail::Migration do
         db_fun = IronTrail::DbFunctions.new(connection)
         tracked = db_fun.collect_tracked_table_names
         expect(tracked).not_to include('ignored_db_test_table')
-      ensure
-        IronTrail.config.ignored_databases.delete(db_name)
       end
     end
 

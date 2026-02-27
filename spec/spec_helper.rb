@@ -11,6 +11,7 @@ RSpec.configure do |config|
 
   config.before do
     IronTrail::Current.reset
+    IronTrail.config.reset!
   end
 end
 

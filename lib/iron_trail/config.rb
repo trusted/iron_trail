@@ -18,6 +18,10 @@ module IronTrail
     attr_reader :ignored_tables, :ignored_databases
 
     def initialize
+      reset!
+    end
+
+    def reset!
       @enable = true
       @track_by_default = true
       @ignored_tables = DEFAULT_IGNORED_TABLES.dup

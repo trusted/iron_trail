@@ -60,17 +60,10 @@ RSpec.describe IronTrail::DbFunctions do
 
       context 'when some tables are ignored' do
         it 'does not include ignored table anywhere' do
-          orig_ignored_tables = IronTrail.config.ignored_tables
-          test_ignored_tables = orig_ignored_tables + %w[foo bar]
+          IronTrail.config.ignored_tables.push('foo', 'bar')
 
-          begin
-            IronTrail.config.instance_variable_set(:@ignored_tables, test_ignored_tables)
-
-            expect(statuses[:tracked]).to contain_exactly(*(default_tables))
-            expect(statuses[:missing]).to be_empty
-          ensure
-            IronTrail.config.instance_variable_set(:@ignored_tables, orig_ignored_tables)
-          end
+          expect(statuses[:tracked]).to contain_exactly(*(default_tables))
+          expect(statuses[:missing]).to be_empty
         end
       end
     end

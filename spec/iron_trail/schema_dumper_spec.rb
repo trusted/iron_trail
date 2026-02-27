@@ -28,8 +28,6 @@ RSpec.describe IronTrail::SchemaDumper do
         output = dump_schema
 
         expect(output).not_to include('IronTrail.post_schema_load')
-      ensure
-        IronTrail.config.ignored_databases.delete(db_name)
       end
     end
 
@@ -39,8 +37,6 @@ RSpec.describe IronTrail::SchemaDumper do
         output = dump_schema
 
         expect(output).not_to include('IronTrail.post_schema_load')
-      ensure
-        IronTrail.config.enable = true
       end
     end
   end

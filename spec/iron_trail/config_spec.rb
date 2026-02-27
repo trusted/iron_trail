@@ -13,12 +13,8 @@ RSpec.describe IronTrail::Config do
     end
 
     it 'allows appending to ignored_tables' do
-      original = config.ignored_tables.dup
-
       config.ignored_tables << 'custom_table'
       expect(config.ignored_tables).to include('custom_table')
-    ensure
-      config.instance_variable_set(:@ignored_tables, original)
     end
   end
 
@@ -34,8 +30,6 @@ RSpec.describe IronTrail::Config do
     it 'allows appending to ignored_databases' do
       config.ignored_databases << 'secondary'
       expect(config.ignored_databases).to include('secondary')
-    ensure
-      config.instance_variable_set(:@ignored_databases, [])
     end
   end
 end
