@@ -10,6 +10,9 @@ module IronTrail
 
       return result unless IronTrail.enabled? && method == :create_table
 
+      db_name = connection.pool.db_config.name
+      return result if IronTrail.ignore_database?(db_name)
+
       start_at_version = IronTrail.config.track_migrations_starting_at_version
       if !running_from_schema && start_at_version
         return result if self.version < Integer(start_at_version)

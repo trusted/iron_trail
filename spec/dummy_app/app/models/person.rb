@@ -7,8 +7,7 @@ class Person < ApplicationRecord
 
   belongs_to :converted_by_pill,
     optional: true,
-    polymorphic: true,
-    class_name: 'MatrixPill'
+    polymorphic: true
 
   belongs_to :owns,
     class_name: 'Hotel',
