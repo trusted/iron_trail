@@ -34,22 +34,6 @@ RSpec.describe IronTrail::Reifier do
       }.to raise_error(/Cannot infer STI model for table matrix_pills and type 'GreenPill'/)
     end
 
-    context 'when a polluting class shares the same table_name' do
-      before do
-        stub_const('TestPollution::Persoo', Class.new(ActiveRecord::Base) {
-          self.table_name = 'people'
-        })
-      end
-
-      it 'returns the conventionally-named class when sti_type is nil' do
-        expect(described_class.model_from_table_name('people')).to eq(Person)
-      end
-
-      it 'returns the polluting class when explicitly requested via sti_type' do
-        expect(described_class.model_from_table_name('people', 'TestPollution::Persoo')).to eq(TestPollution::Persoo)
-      end
-    end
-
     context 'when multiple classes share a table and none matches the conventional name' do
       before do
         stub_const('Aardvark', Class.new(ActiveRecord::Base) {

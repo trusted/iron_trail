@@ -29,6 +29,7 @@ module IronTrail
       candidates = ActiveRecord::Base.descendants
         .reject(&:abstract_class)
         .select { |klass| klass.table_name == table_name }
+        .select { |klass| klass.name.present? && klass.name.safe_constantize == klass }
 
       raise "Cannot infer model from table named '#{table_name}'" if candidates.empty?
       return candidates.first if candidates.one?
@@ -41,10 +42,16 @@ module IronTrail
       end
 
       # When sti_type is nil and multiple classes share the table,
-      # prefer the class whose name conventionally matches the table name.
-      conventional_name = table_name.classify
-      candidates.find { |c| c.name == conventional_name } ||
-        candidates.min_by(&:name)
+      # filter out STI subclasses to find the base class.
+      bases = candidates.reject { |c| candidates.any? { |other| other != c && c < other } }
+      return bases.first if bases.one?
+
+      # If multiple base classes remain, prefer the one that is an STI base
+      # (i.e., has subclasses among the original candidates).
+      sti_bases = bases.select { |c| candidates.any? { |other| other != c && other < c } }
+      return sti_bases.first if sti_bases.one?
+
+      raise "Cannot infer model from table named '#{table_name}'"
     end
   end
 end
