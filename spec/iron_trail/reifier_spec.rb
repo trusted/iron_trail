@@ -36,12 +36,15 @@ RSpec.describe IronTrail::Reifier do
 
     context 'when multiple classes share a table and none matches the conventional name' do
       before do
-        stub_const('Aardvark', Class.new(ActiveRecord::Base) {
-          self.table_name = 'widgets'
-        })
-        stub_const('Zebra', Class.new(ActiveRecord::Base) {
-          self.table_name = 'widgets'
-        })
+        @stub_aardvark = Class.new(ActiveRecord::Base) { self.table_name = 'widgets' }
+        @stub_zebra = Class.new(ActiveRecord::Base) { self.table_name = 'widgets' }
+        stub_const('Aardvark', @stub_aardvark)
+        stub_const('Zebra', @stub_zebra)
+      end
+
+      after do
+        @stub_aardvark.table_name = nil
+        @stub_zebra.table_name = nil
       end
 
       it 'raises an error when sti_type is nil' do
@@ -53,9 +56,12 @@ RSpec.describe IronTrail::Reifier do
 
     context 'when a polluting class shares an STI table' do
       before do
-        stub_const('TestPollution::MatrixPilz', Class.new(ActiveRecord::Base) {
-          self.table_name = 'matrix_pills'
-        })
+        @stub_pilz = Class.new(ActiveRecord::Base) { self.table_name = 'matrix_pills' }
+        stub_const('TestPollution::MatrixPilz', @stub_pilz)
+      end
+
+      after do
+        @stub_pilz.table_name = nil
       end
 
       it 'returns the base STI class when sti_type is nil' do

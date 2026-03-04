@@ -29,7 +29,6 @@ module IronTrail
       candidates = ActiveRecord::Base.descendants
         .reject(&:abstract_class)
         .select { |klass| klass.table_name == table_name }
-        .select { |klass| klass.name.present? && klass.name.safe_constantize == klass }
 
       raise "Cannot infer model from table named '#{table_name}'" if candidates.empty?
       return candidates.first if candidates.one?
