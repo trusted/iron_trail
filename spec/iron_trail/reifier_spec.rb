@@ -50,6 +50,23 @@ RSpec.describe IronTrail::Reifier do
       end
     end
 
+    context 'when multiple classes share a table and none matches the conventional name' do
+      before do
+        stub_const('Aardvark', Class.new(ActiveRecord::Base) {
+          self.table_name = 'widgets'
+        })
+        stub_const('Zebra', Class.new(ActiveRecord::Base) {
+          self.table_name = 'widgets'
+        })
+      end
+
+      it 'raises an error when sti_type is nil' do
+        expect {
+          described_class.model_from_table_name('widgets', nil)
+        }.to raise_error(/Cannot infer model/)
+      end
+    end
+
     context 'when a polluting class shares an STI table' do
       before do
         stub_const('TestPollution::MatrixPilz', Class.new(ActiveRecord::Base) {
