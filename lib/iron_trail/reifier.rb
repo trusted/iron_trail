@@ -25,27 +25,32 @@ module IronTrail
       record
     end
 
-    def self.model_from_table_name(table_name, sti_type=nil)
-      index = ActiveRecord::Base.descendants.reject(&:abstract_class).chunk(&:table_name).to_h do |key, val|
-        v = \
-          if val.length == 1
-            val[0]
-          else
-            val.to_h { |k| [k.to_s, k] }
-          end
+    def self.model_from_table_name(table_name, sti_type = nil)
+      candidates = ActiveRecord::Base.descendants
+        .reject(&:abstract_class)
+        .select { |klass| klass.table_name == table_name }
 
-        [key, v]
+      raise "Cannot infer model from table named '#{table_name}'" if candidates.empty?
+      return candidates.first if candidates.one?
+
+      if sti_type.present?
+        klass = candidates.find { |c| c.name == sti_type }
+        return klass if klass
+
+        raise "Cannot infer STI model for table #{table_name} and type '#{sti_type}'"
       end
 
-      klass = index[table_name]
-      raise "Cannot infer model from table named '#{table_name}'" unless klass
+      # When sti_type is nil and multiple classes share the table,
+      # filter out STI subclasses to find the base class.
+      bases = candidates.reject { |c| candidates.any? { |other| other != c && c < other } }
+      return bases.first if bases.one?
 
-      return klass unless klass.is_a?(Hash)
-      klass = klass[sti_type]
+      # If multiple base classes remain, prefer the one that is an STI base
+      # (i.e., has subclasses among the original candidates).
+      sti_bases = bases.select { |c| candidates.any? { |other| other != c && other < c } }
+      return sti_bases.first if sti_bases.one?
 
-      return klass if klass
-
-      raise "Cannot infer STI model for table #{table_name} and type '#{sti_type}'"
+      raise "Cannot infer model from table named '#{table_name}'"
     end
   end
 end
