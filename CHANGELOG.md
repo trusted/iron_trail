@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.2.2 - 2026-05-08
+
+### Added
+
+- Send a Sentry warning (`Sentry.capture_message`) when IronTrail metadata exceeds the maximum length (1 MiB), alongside the existing `Rails.logger.warn`. Guarded with `if defined?(Sentry)` to keep iron_trail decoupled from Sentry.
+
 ## 0.2.1 - 2026-03-05
 
 ### Fixed
