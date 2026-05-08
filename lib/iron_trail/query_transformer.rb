@@ -24,7 +24,9 @@ module IronTrail
         metadata = JSON.dump(current_metadata)
 
         if metadata.length > METADATA_MAX_LENGTH
-          Rails.logger.warn("IronTrail metadata is longer than maximum length! #{metadata.length} > #{METADATA_MAX_LENGTH}")
+          msg = "IronTrail metadata is longer than maximum length! #{metadata.length} > #{METADATA_MAX_LENGTH}"
+          Rails.logger.warn(msg)
+          Sentry.capture_message(msg, level: :warning) if defined?(Sentry)
           next query
         end
 

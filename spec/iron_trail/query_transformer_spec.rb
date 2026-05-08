@@ -34,5 +34,34 @@ RSpec.describe IronTrail::QueryTransformer do
         expect(transformed_query).to eq(query)
       end
     end
+
+    context 'when metadata exceeds max length' do
+      let(:metadata) { { 'data' => 'x' * IronTrail::QueryTransformer::METADATA_MAX_LENGTH } }
+
+      it 'leaves the query untouched' do
+        expect(transformed_query).to eq(query)
+      end
+
+      it 'logs a warning' do
+        expect(Rails.logger).to receive(:warn).with(/IronTrail metadata is longer than maximum length!/)
+        transformed_query
+      end
+
+      context 'when Sentry is not defined' do
+        it 'does not raise' do
+          expect { transformed_query }.not_to raise_error
+        end
+      end
+
+      context 'when Sentry is defined' do
+        before { stub_const('Sentry', double('Sentry')) }
+
+        it 'captures a warning message in Sentry' do
+          expect(Sentry).to receive(:capture_message)
+            .with(/IronTrail metadata is longer than maximum length!/, level: :warning)
+          transformed_query
+        end
+      end
+    end
   end
 end
