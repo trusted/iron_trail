@@ -147,5 +147,13 @@ and which ones are in the ignore list, you can use the following.
 rake iron_trail:tracking:status
 ```
 
+## Releasing a new version
+
+1. Bump `VERSION` in `lib/iron_trail/version.rb`
+2. Add an entry to `CHANGELOG.md`
+3. Merge to `main`
+4. Create a new GitHub Release at `https://github.com/trusted/iron_trail/releases` following the same pattern as previous releases (tag, title, and description)
+5. Creating the release triggers the [publish workflow](.github/workflows/publish.yml) which pushes the gem automatically
+
 [irontrail_log_row_function]: lib/iron_trail/irontrail_log_row_function.sql
 [postgres_ddl_partitioning]: https://www.postgresql.org/docs/current/ddl-partitioning.html
