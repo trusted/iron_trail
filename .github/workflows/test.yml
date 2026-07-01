@@ -14,11 +14,15 @@ permissions:
 
 jobs:
   test:
-    name: Ruby ${{ matrix.ruby }}, ${{ matrix.gemfile }}.gemfile, PG ${{ matrix.postgres }}
+    name: Ruby ${{ matrix.ruby }}, ${{ matrix.gemfile }}.gemfile, PG ${{ matrix.postgres }}${{ matrix.pg_duckdb && ' +pg_duckdb' || '' }}
     runs-on: ubuntu-latest
     services:
       test-postgres:
-        image: postgres:${{ matrix.postgres }}
+        # Plain-Postgres rows use the stock image; pg_duckdb rows override
+        # `image` with a pgduckdb build (Postgres + pg_duckdb preloaded via
+        # shared_preload_libraries). The setup migration auto-creates the
+        # extension when it's available, so no other per-row config is needed.
+        image: ${{ matrix.image || format('postgres:{0}', matrix.postgres) }}
         ports:
         - 5432:5432
         env:
@@ -38,6 +42,13 @@ jobs:
         - { gemfile: 'rails_8.1', ruby: 'head', postgres: '17', experimental: true }
         - { gemfile: 'rails_8.1', ruby: 'head', postgres: '18', experimental: true }
         - { gemfile: 'rails_head', ruby: 'head', postgres: '18', experimental: true }
+        # pg_duckdb — same suite against a pgduckdb build, pinned to the
+        # 17-v1.0.0 image that data-odyssey runs in production. Covers the
+        # current Rails tier on PG16/17; the extension is created by the
+        # dummy-app setup migration when detected.
+        - { gemfile: 'rails_7.2', ruby: '3.3', postgres: '16', image: 'pgduckdb/pgduckdb:16-v1.0.0', pg_duckdb: true }
+        - { gemfile: 'rails_7.2', ruby: '3.3', postgres: '17', image: 'pgduckdb/pgduckdb:17-v1.0.0', pg_duckdb: true }
+        - { gemfile: 'rails_8.0', ruby: '3.4', postgres: '17', image: 'pgduckdb/pgduckdb:17-v1.0.0', pg_duckdb: true }
     continue-on-error: ${{ matrix.experimental || false }}
     steps:
     - name: Checkout source
