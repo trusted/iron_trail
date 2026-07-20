@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'json', '~> 2.8'
   s.add_development_dependency 'sidekiq', '~> 8.0'
 
-  s.required_ruby_version = '>= 3.4.0'
+  s.required_ruby_version = '>= 3.3.0'
 
   s.metadata = {
     'bug_tracker_uri' => 'https://github.com/trusted/iron_trail/issues',

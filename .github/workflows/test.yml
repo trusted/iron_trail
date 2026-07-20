@@ -27,6 +27,7 @@ jobs:
       matrix:
         include:
         # old
+        - { gemfile: 'rails_8.0', ruby: '3.3', postgres: '15' }
         - { gemfile: 'rails_8.0', ruby: '3.4', postgres: '15' }
         # current
         - { gemfile: 'rails_8.1', ruby: '4.0', postgres: '17' }

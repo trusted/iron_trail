@@ -35,10 +35,10 @@ configure the env vars to connect to your postgres instance.
 
 A common development workflow should be to make some changes and then run the specs. You'll
 have to specify (from the `Appraisals` file) the rails version you'll use to run the specs.
-Then having chosen, e.g. rails 7.2, just run:
+Then having chosen, e.g. rails 8.1, just run:
 
 ```
-bundle exec appraisal rails-7.2 rake
+bundle exec appraisal rails-8.1 rake
 ```
 
 This will reset the DB and run all specs. A faster way to iterate on changes is to run
@@ -46,9 +46,9 @@ the `prepare` rake task once, then run `rspec` as many times as you want. For in
 
 ```
 # Prepare/reset the database
-bundle exec appraisal rails-7.2 rake prepare
+bundle exec appraisal rails-8.1 rake prepare
 # Run most specs
-bundle exec appraisal rails-7.2 rspec
+bundle exec appraisal rails-8.1 rspec
 ```
 
 There's a caveat when running specs. The default rake task is to run the
