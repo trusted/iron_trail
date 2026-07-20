@@ -194,7 +194,7 @@ RSpec.describe Guitar do
 
       @trail_ids.zip(fake_timestamps).each do |trail_id, fake_ts|
         query = "UPDATE irontrail_changes SET created_at='#{fake_ts}' WHERE id=#{trail_id}"
-        result = ActiveRecord::Base.connection.execute(query)
+        result = lease_connection.execute(query)
         expect(result.cmd_tuples).to eq(1)
       end
       guitar.reload
@@ -223,12 +223,12 @@ RSpec.describe Guitar do
 
         query = <<~SQL
           UPDATE irontrail_changes SET
-            rec_old=#{ActiveRecord::Base.connection.quote(JSON.dump(rec_old))}::jsonb,
-            rec_new=#{ActiveRecord::Base.connection.quote(JSON.dump(rec_new))}::jsonb
+            rec_old=#{lease_connection.quote(JSON.dump(rec_old))}::jsonb,
+            rec_new=#{lease_connection.quote(JSON.dump(rec_new))}::jsonb
           WHERE id=#{trail_id}
         SQL
 
-        result = ActiveRecord::Base.connection.execute(query)
+        result = lease_connection.execute(query)
         expect(result.cmd_tuples).to eq(1)
       end
 
@@ -259,7 +259,7 @@ RSpec.describe Guitar do
       before do
         guitar.destroy!
         query = "UPDATE irontrail_changes SET created_at='#{destroy_time}' WHERE operation='d' AND rec_id='#{guitar.id}'"
-        result = ActiveRecord::Base.connection.execute(query)
+        result = lease_connection.execute(query)
         expect(result.cmd_tuples).to eq(1)
       end
 

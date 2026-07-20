@@ -27,7 +27,7 @@ module IronTrail
       attr_accessor :enabled
 
       def enable!
-        DbFunctions.new(ActiveRecord::Base.connection).install_functions
+        with_connection { |conn| DbFunctions.new(conn).install_functions }
         @enabled = true
       end
 
@@ -44,7 +44,7 @@ module IronTrail
           $$ LANGUAGE plpgsql;
         SQL
 
-        ActiveRecord::Base.connection.execute(sql)
+        with_connection { |conn| conn.execute(sql) }
         @enabled = false
       end
 
@@ -63,6 +63,20 @@ module IronTrail
           ::IronTrail::Testing.disable!
         elsif !want_enabled && was_enabled
           ::IronTrail::Testing.enable!
+        end
+      end
+
+      private
+
+      # Checks out a connection for the duration of the block, mirroring
+      # ActiveRecord::Base.with_connection (Rails 7.2+). On Rails 7.1, where
+      # that method does not exist yet, it falls back to yielding the
+      # (soft-deprecated on Rails 8.1+) ActiveRecord::Base.connection.
+      def with_connection(&block)
+        if ActiveRecord::Base.respond_to?(:with_connection)
+          ActiveRecord::Base.with_connection(&block)
+        else
+          yield ActiveRecord::Base.connection
         end
       end
     end

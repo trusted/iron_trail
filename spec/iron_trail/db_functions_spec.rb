@@ -2,7 +2,7 @@
 
 RSpec.describe IronTrail::DbFunctions do
   subject(:instance) { described_class.new(connection) }
-  let(:connection) { ActiveRecord::Base.connection }
+  let(:connection) { lease_connection }
 
   let(:default_tables) do
     %w[
