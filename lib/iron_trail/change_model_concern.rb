@@ -66,7 +66,9 @@ module IronTrail
       # This works by inspecting whether there are any keys in the rec_delta column
       # other than the columns specified in the `columns` parameter.
       def with_delta_other_than(*columns)
-        quoted_columns = columns.map { |col_name| lease_connection.quote(col_name) }
+        quoted_columns = with_connection do |conn|
+          columns.map { |col_name| conn.quote(col_name) }
+        end
         exclude_array = "ARRAY[#{quoted_columns.join(', ')}]::text[]"
 
         sql = "rec_delta IS NULL OR (rec_delta - #{exclude_array}) <> '{}'::jsonb"
@@ -79,17 +81,19 @@ module IronTrail
         ary_index = Integer(ary_index)
         scope = all
 
-        args.each do |col_name, value|
-          col_delta = "rec_delta->#{lease_connection.quote(col_name)}"
-          node = if value == nil
-            ::Arel::Nodes::SqlLiteral.new("#{col_delta}->#{ary_index} = 'null'::jsonb")
-          else
-            ::Arel::Nodes::SqlLiteral.new("#{col_delta}->>#{ary_index}").eq(
-              ::Arel::Nodes::BindParam.new(value.to_s)
-            )
-          end
+        with_connection do |conn|
+          args.each do |col_name, value|
+            col_delta = "rec_delta->#{conn.quote(col_name)}"
+            node = if value == nil
+              ::Arel::Nodes::SqlLiteral.new("#{col_delta}->#{ary_index} = 'null'::jsonb")
+            else
+              ::Arel::Nodes::SqlLiteral.new("#{col_delta}->>#{ary_index}").eq(
+                ::Arel::Nodes::BindParam.new(value.to_s)
+              )
+            end
 
-          scope.where!(node)
+            scope.where!(node)
+          end
         end
 
         scope

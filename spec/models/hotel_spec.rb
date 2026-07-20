@@ -17,7 +17,7 @@ RSpec.describe Hotel do
     UPDATE hotels SET hotel_time='2023-10-12 14:18:29.422', time_in_japan='2023-10-13T17:16:15.021+0200' WHERE id=100;
     SQL
 
-    ActiveRecord::Base.lease_connection.execute(sql)
+    ActiveRecord::Base.with_connection { |conn| conn.execute(sql) }
   end
 
   let(:hotel) { Hotel.find(100) }
@@ -85,18 +85,20 @@ RSpec.describe Hotel do
 
   describe 'reifying JSONB columns' do
     before do
-      ActiveRecord::Base.lease_connection.execute(<<~SQL)
-        UPDATE hotels SET room_map=$${
-            "floors": ["Floor 1", "Floor 2", "Gym"],
-            "rooms": {
-              "floor_1_room_22": "User:9001",
-              "floor_2_room_03": "User:1234",
-              "floor_2_room_01": "User:987654321"
-            }
-          }$$ WHERE id=100;
+      ActiveRecord::Base.with_connection do |conn|
+        conn.execute(<<~SQL)
+          UPDATE hotels SET room_map=$${
+              "floors": ["Floor 1", "Floor 2", "Gym"],
+              "rooms": {
+                "floor_1_room_22": "User:9001",
+                "floor_2_room_03": "User:1234",
+                "floor_2_room_01": "User:987654321"
+              }
+            }$$ WHERE id=100;
 
-        UPDATE hotels SET room_map='null'::jsonb WHERE id=100;
-      SQL
+          UPDATE hotels SET room_map='null'::jsonb WHERE id=100;
+        SQL
+      end
     end
 
     it 'correctly serializes/deserializes JSONB columns' do
