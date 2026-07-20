@@ -3,7 +3,7 @@
 module IronTrail::RakeHelper
   class << self
     def db_functions
-      IronTrail::DbFunctions.new(ActiveRecord::Base.connection)
+      IronTrail::DbFunctions.new(ActiveRecord::Base.lease_connection)
     end
 
     def abort_when_unsafe!
