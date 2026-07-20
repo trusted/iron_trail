@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 0.3.0 - 2026-07-20
+
+### Changed
+
+- Raised the minimum supported versions to Rails 8.0 and Ruby 3.3.
+- Replaced soft-deprecated `ActiveRecord::Base.connection` usage with `lease_connection`/`with_connection`.
+- CI matrix: use newer deps versions, drop older ones.
+
 ## 0.2.2 - 2026-05-08
 
 ### Added

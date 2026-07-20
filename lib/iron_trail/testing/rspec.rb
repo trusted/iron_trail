@@ -27,7 +27,7 @@ module IronTrail
       attr_accessor :enabled
 
       def enable!
-        DbFunctions.new(ActiveRecord::Base.connection).install_functions
+        ActiveRecord::Base.with_connection { |conn| DbFunctions.new(conn).install_functions }
         @enabled = true
       end
 
@@ -44,7 +44,7 @@ module IronTrail
           $$ LANGUAGE plpgsql;
         SQL
 
-        ActiveRecord::Base.connection.execute(sql)
+        ActiveRecord::Base.with_connection { |conn| conn.execute(sql) }
         @enabled = false
       end
 
