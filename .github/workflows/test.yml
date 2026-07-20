@@ -26,16 +26,13 @@ jobs:
     strategy:
       matrix:
         include:
-        # very old
-        - { gemfile: 'rails_7.1', ruby: '3.3', postgres: '15' }
         # old
-        - { gemfile: 'rails_7.2', ruby: '3.3', postgres: '16' }
-        - { gemfile: 'rails_7.2', ruby: '3.3', postgres: '17' }
+        - { gemfile: 'rails_8.0', ruby: '3.4', postgres: '15' }
         # current
-        - { gemfile: 'rails_8.0', ruby: '3.4', postgres: '17' }
-        - { gemfile: 'rails_8.0', ruby: '3.4', postgres: '18' }
+        - { gemfile: 'rails_8.1', ruby: '4.0', postgres: '17' }
+        - { gemfile: 'rails_8.1', ruby: '4.0', postgres: '18' }
         # futuristic
-        - { gemfile: 'rails_8.1', ruby: 'head', postgres: '17', experimental: true }
+        - { gemfile: 'rails_8.1', ruby: '4.0', postgres: '19beta2', experimental: true }
         - { gemfile: 'rails_8.1', ruby: 'head', postgres: '18', experimental: true }
         - { gemfile: 'rails_head', ruby: 'head', postgres: '18', experimental: true }
     continue-on-error: ${{ matrix.experimental || false }}
