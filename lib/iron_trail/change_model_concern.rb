@@ -66,7 +66,7 @@ module IronTrail
       # This works by inspecting whether there are any keys in the rec_delta column
       # other than the columns specified in the `columns` parameter.
       def with_delta_other_than(*columns)
-        quoted_columns = columns.map { |col_name| connection.quote(col_name) }
+        quoted_columns = columns.map { |col_name| lease_connection.quote(col_name) }
         exclude_array = "ARRAY[#{quoted_columns.join(', ')}]::text[]"
 
         sql = "rec_delta IS NULL OR (rec_delta - #{exclude_array}) <> '{}'::jsonb"
@@ -80,7 +80,7 @@ module IronTrail
         scope = all
 
         args.each do |col_name, value|
-          col_delta = "rec_delta->#{connection.quote(col_name)}"
+          col_delta = "rec_delta->#{lease_connection.quote(col_name)}"
           node = if value == nil
             ::Arel::Nodes::SqlLiteral.new("#{col_delta}->#{ary_index} = 'null'::jsonb")
           else

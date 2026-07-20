@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe IronTrail::Migration do
-  let(:connection) { lease_connection }
+  let(:connection) { ActiveRecord::Base.lease_connection }
 
   after do
     connection.execute('DROP TABLE IF EXISTS ignored_db_test_table')

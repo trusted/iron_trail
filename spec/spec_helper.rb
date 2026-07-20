@@ -39,7 +39,6 @@ end
 
 require File.expand_path('dummy_app/config/environment', __dir__)
 
-require_relative 'support/connection_compat'
 require_relative 'support/iron_trail_spec_migrator'
 ::IronTrailSpecMigrator.new.migrate
 
