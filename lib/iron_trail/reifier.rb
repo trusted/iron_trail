@@ -2,11 +2,22 @@
 
 module IronTrail
   module Reifier
-    def self.reify(trail)
+    NOT_GIVEN = Object.new.freeze
+    private_constant :NOT_GIVEN
+
+    # Pass `record:` when the current row is already loaded, e.g. when reifying many trails at
+    # once, to skip the per-trail lookup. Pass `nil` when the row no longer exists. The record
+    # is mutated in place, so pass one no other code is holding on to.
+    def self.reify(trail, record: NOT_GIVEN)
       source_attributes = (trail.delete_operation? ? trail.rec_old : trail.rec_new)
       klass = model_from_table_name(trail.rec_table, source_attributes['type'])
 
-      record = klass.where(id: trail.rec_id).first || klass.new
+      if record.equal?(NOT_GIVEN)
+        record = klass.where(id: trail.rec_id).first
+      elsif record && !record.instance_of?(klass)
+        raise ArgumentError, "expected a #{klass.name}, got a #{record.class.name}"
+      end
+      record ||= klass.new
 
       source_attributes.each do |name, value|
         if record.has_attribute?(name)

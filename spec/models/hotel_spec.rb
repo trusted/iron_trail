@@ -83,6 +83,36 @@ RSpec.describe Hotel do
     end
   end
 
+  describe 'reify with a preloaded record' do
+    let(:trail) { ordered_trails.first }
+
+    it 'uses the given record instead of querying for it' do
+      trail
+      preloaded = Hotel.find(100)
+
+      queries = []
+      callback = ->(*, payload) { queries << payload[:sql] unless payload[:name] == 'SCHEMA' }
+      reified = ActiveSupport::Notifications.subscribed(callback, 'sql.active_record') do
+        trail.reify(record: preloaded)
+      end
+
+      expect(reified).to equal(preloaded)
+      expect(reified.hotel_time).to eq(trail.reify.hotel_time)
+      expect(queries.grep(/FROM "hotels"/)).to be_empty
+    end
+
+    it 'builds a new record when given nil' do
+      reified = trail.reify(record: nil)
+
+      expect(reified).to be_new_record
+      expect(reified).to have_attributes(id: 100, name: 'Wonky')
+    end
+
+    it 'rejects a record of another class' do
+      expect { trail.reify(record: Person.new) }.to raise_error(ArgumentError, 'expected a Hotel, got a Person')
+    end
+  end
+
   describe 'reifying JSONB columns' do
     before do
       ActiveRecord::Base.with_connection do |conn|

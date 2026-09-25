@@ -8,8 +8,8 @@ module IronTrail
     def update_operation? = (operation == 'u')
     def delete_operation? = (operation == 'd')
 
-    def reify
-      Reifier.reify(self)
+    def reify(**)
+      Reifier.reify(self, **)
     end
 
     # We don't store the class name of the object, but we do store the rec_table.
