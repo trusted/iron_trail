@@ -75,8 +75,10 @@ module IronTrail
     def setup_active_record
       ActiveRecord::Migration.prepend(IronTrail::Migration)
       ActiveRecord::SchemaDumper.prepend(IronTrail::SchemaDumper)
+    end
 
-      @query_transformer = QueryTransformer.new
+    def setup_query_transformer
+      @query_transformer ||= QueryTransformer.new
       @query_transformer.setup_active_record
     end
 

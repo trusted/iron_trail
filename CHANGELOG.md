@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Boot on Rails main (8.2): the query transformer is now registered from a Railtie initializer, before
+  Rails freezes `ActiveRecord.query_transformers`, and is the Ractor-shareable class itself rather than a proc.
+
 ### Added
 
 - `reify` accepts an optional `record:`, the already-loaded current row, so callers reifying many

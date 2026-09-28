@@ -64,4 +64,16 @@ RSpec.describe IronTrail::QueryTransformer do
       end
     end
   end
+  describe 'registration' do
+    let(:metadata) { {} }
+
+    it 'is registered once, as the class itself' do
+      expect(ActiveRecord.query_transformers.count(described_class)).to eq(1)
+      expect(ActiveRecord.query_transformers.grep(Proc)).to be_empty
+    end
+
+    it 'keeps the registered transformers Ractor-shareable' do
+      expect { Ractor.make_shareable(ActiveRecord.query_transformers.dup) }.not_to raise_error
+    end
+  end
 end
