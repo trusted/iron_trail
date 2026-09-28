@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `reify` accepts an optional `record:`, the already-loaded current row, so callers reifying many
+  trails at once can load the rows in bulk instead of one query per trail.
+
 ## 0.3.0 - 2026-07-20
 
 ### Changed
