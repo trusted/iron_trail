@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `travel_to` bounds its trail lookup below by the record's own `created_at`/`updated_at`, so on an
+  `irontrail_changes` table partitioned by `created_at` Postgres reads only the partitions from that
+  bound on instead of all of them. It returns the same change as before: when no change falls in
+  the bound, it falls back to the unbounded lookup.
+
 ## 0.3.1 - 2026-09-28
 
 ### Added
