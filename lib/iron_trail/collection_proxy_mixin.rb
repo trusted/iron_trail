@@ -18,12 +18,10 @@ module IronTrail
 
     private
 
-    # Changes are stamped with the record's created_at/updated_at or a later time, so the change
-    # travel_to wants is almost always at or after the record's latest timestamp up to ts. Bounding
-    # the lookup there lets Postgres skip older partitions of irontrail_changes. If no change is in
-    # the bound (e.g. updated_at moved with tracking disabled), the unbounded lookup still runs.
+    # Changes are stamped with the record's created_at/updated_at or later, so starting the search
+    # at the latest of those up to ts usually finds the change and skips older partitions.
     def travel_to_lower_bound(ts)
-      return if ts.nil?
+      return if ts.blank?
 
       owner = proxy_association.owner
       %w[created_at updated_at]
