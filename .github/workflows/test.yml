@@ -32,12 +32,6 @@ jobs:
         # current
         - { gemfile: 'rails_8.1', ruby: '4.0', postgres: '17' }
         - { gemfile: 'rails_8.1', ruby: '4.0', postgres: '18' }
-        # futuristic
-        - { gemfile: 'rails_8.1', ruby: '4.0', postgres: '19beta4', experimental: true }
-        - { gemfile: 'rails_8.1', ruby: 'head', postgres: '18', experimental: true }
-        - { gemfile: 'rails_head', ruby: 'head', postgres: '18', experimental: true }
-        - { gemfile: 'rails_head', ruby: 'head', postgres: '19beta4', experimental: true }
-    continue-on-error: ${{ matrix.experimental || false }}
     steps:
     - name: Checkout source
       uses: actions/checkout@v7
