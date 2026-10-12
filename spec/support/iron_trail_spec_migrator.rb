@@ -9,14 +9,9 @@ class IronTrailSpecMigrator
     Rails.application.load_generators
     Rails::Generators.invoke 'iron_trail:migration', [], behavior: :invoke, destination_root: Rails.root
 
-    schema_migration =
-      if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new("7.2")
-        ::ActiveRecord::Base.connection.schema_migration
-      else
-        ::ActiveRecord::SchemaMigration.new(
-          ActiveRecord::Tasks::DatabaseTasks.migration_connection_pool
-        )
-      end
+    schema_migration = ::ActiveRecord::SchemaMigration.new(
+      ActiveRecord::Tasks::DatabaseTasks.migration_connection_pool
+    )
 
     ::ActiveRecord::MigrationContext.new(@migrations_path, schema_migration).migrate
   end

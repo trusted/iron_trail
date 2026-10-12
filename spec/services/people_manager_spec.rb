@@ -9,7 +9,7 @@ RSpec.describe PeopleManager do
 
       expect(person.persisted?).to be true
 
-      results = ActiveRecord::Base.connection.execute("select * from irontrail_changes WHERE rec_table='people' AND rec_id=#{person.id}::text").to_a
+      results = ActiveRecord::Base.with_connection { |conn| conn.execute("select * from irontrail_changes WHERE rec_table='people' AND rec_id=#{person.id}::text").to_a }
       expect(results.length).to be 1
 
       record_new = JSON.parse(results.first['rec_new'])
@@ -51,11 +51,11 @@ RSpec.describe PeopleManager do
         people # Ensure people exist beforehand
 
         expect { guitar_ids }.to change {
-          ActiveRecord::Base.connection.execute("select count(*) as c from irontrail_changes").to_a.first['c'].to_i
+          ActiveRecord::Base.with_connection { |conn| conn.execute("select count(*) as c from irontrail_changes").to_a.first['c'].to_i }
         }.by(expected_change_count)
 
         # expect no errors
-        res = ActiveRecord::Base.connection.execute("select count(*) as c from irontrail_trigger_errors").to_a.first
+        res = ActiveRecord::Base.with_connection { |conn| conn.execute("select count(*) as c from irontrail_trigger_errors").to_a.first }
         expect(res['c']).to eq(0)
       end
 
@@ -63,11 +63,13 @@ RSpec.describe PeopleManager do
         guitar_ids
 
         people.each do |person|
-          res = ActiveRecord::Base.connection.execute(<<~SQL).to_a
-            SELECT * FROM irontrail_changes WHERE
-            rec_table='guitars' AND rec_new->>'person_id'='#{person.id}'
-            ORDER BY id ASC
-          SQL
+          res = ActiveRecord::Base.with_connection do |conn|
+            conn.execute(<<~SQL).to_a
+              SELECT * FROM irontrail_changes WHERE
+              rec_table='guitars' AND rec_new->>'person_id'='#{person.id}'
+              ORDER BY id ASC
+            SQL
+          end
 
           expected_guitar_names = described_class::CLASSIC_GUITARS.map do |n|
             "#{n} #{person.full_name}"

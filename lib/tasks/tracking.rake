@@ -2,8 +2,8 @@
 
 module IronTrail::RakeHelper
   class << self
-    def db_functions
-      IronTrail::DbFunctions.new(ActiveRecord::Base.connection)
+    def db_functions(connection)
+      IronTrail::DbFunctions.new(connection)
     end
 
     def abort_when_unsafe!
@@ -22,28 +22,33 @@ namespace :iron_trail do
   namespace :tracking do
     desc 'Enables tracking for all missing tables.'
     task enable: :environment do
-      tables = IronTrail::RakeHelper.db_functions.collect_tables_tracking_status[:missing]
-      unless tables.length > 0
-        puts "All tables are being tracked already (no missing tables found)."
-        puts "If you think this is wrong, check your ignored_tables list."
-        return
-      end
+      ActiveRecord::Base.with_connection do |conn|
+        db_functions = IronTrail::RakeHelper.db_functions(conn)
+        tables = db_functions.collect_tables_tracking_status[:missing]
 
-      puts "Will start tracking #{tables.length} tables."
-      tables.each do |table_name|
-        IronTrail::RakeHelper.db_functions.enable_tracking_for_table(table_name)
+        if tables.empty?
+          puts "All tables are being tracked already (no missing tables found)."
+          puts "If you think this is wrong, check your ignored_tables list."
+        else
+          puts "Will start tracking #{tables.length} tables."
+          tables.each do |table_name|
+            db_functions.enable_tracking_for_table(table_name)
+          end
+        end
       end
     end
 
     desc 'Disabled tracking for any ignored table that might still have the trigger enabled.'
     task disable_on_ignored: :environment do
-      affected_tables = IronTrail::RakeHelper.db_functions.disable_for_all_ignored_tables
+      ActiveRecord::Base.with_connection do |conn|
+        affected_tables = IronTrail::RakeHelper.db_functions(conn).disable_for_all_ignored_tables
 
-      unless affected_tables.empty?
-        puts "Removed tracking from #{affected_tables.length} tables:"
+        unless affected_tables.empty?
+          puts "Removed tracking from #{affected_tables.length} tables:"
 
-        affected_tables.each do |table_name|
-          puts "\t#{table_name}"
+          affected_tables.each do |table_name|
+            puts "\t#{table_name}"
+          end
         end
       end
     end
@@ -52,24 +57,30 @@ namespace :iron_trail do
     task disable: :environment do
       IronTrail::RakeHelper.abort_when_unsafe!
 
-      tables = IronTrail::RakeHelper.db_functions.collect_tables_tracking_status[:tracked]
-      puts "Will stop tracking #{tables.length} tables."
-      tables.each do |table_name|
-        IronTrail::RakeHelper.db_functions.disable_tracking_for_table(table_name)
-      end
+      ActiveRecord::Base.with_connection do |conn|
+        db_functions = IronTrail::RakeHelper.db_functions(conn)
 
-      tables = IronTrail::RakeHelper.db_functions.collect_tables_tracking_status[:tracked]
-      if tables.length > 0
-        puts "WARNING: Something went wrong. There are still #{tables.length}" + \
-             " tables being tracked."
-      else
-        puts "Done!"
+        tables = db_functions.collect_tables_tracking_status[:tracked]
+        puts "Will stop tracking #{tables.length} tables."
+        tables.each do |table_name|
+          db_functions.disable_tracking_for_table(table_name)
+        end
+
+        tables = db_functions.collect_tables_tracking_status[:tracked]
+        if tables.length > 0
+          puts "WARNING: Something went wrong. There are still #{tables.length}" + \
+               " tables being tracked."
+        else
+          puts "Done!"
+        end
       end
     end
 
     desc 'Shows which tables are tracking, missing and ignored.'
     task status: :environment do
-      status = IronTrail::RakeHelper.db_functions.collect_tables_tracking_status
+      status = ActiveRecord::Base.with_connection do |conn|
+        IronTrail::RakeHelper.db_functions(conn).collect_tables_tracking_status
+      end
       ignored = (IronTrail.config.ignored_tables || [])
 
       # We likely want to keep this structure of text untouched as someone

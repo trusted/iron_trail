@@ -2,12 +2,10 @@
 
 RSpec.describe IronTrail::SchemaDumper do
   let(:stream) { StringIO.new }
-  let(:connection) { ActiveRecord::Base.connection }
+  let(:connection) { ActiveRecord::Base.lease_connection }
 
   def dump_schema(conn = connection)
-    # Rails 7.2+ takes a pool, Rails 7.1 takes a connection
-    dump_target = ActiveRecord::SchemaDumper.method(:dump).parameters.first[1] == :pool ? conn.pool : conn
-    ActiveRecord::SchemaDumper.dump(dump_target, stream)
+    ActiveRecord::SchemaDumper.dump(conn.pool, stream)
     stream.string
   end
 
