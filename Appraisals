@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 appraise "rails-8.0" do
-  gem "rails", "~> 8.0.4"
+  gem "rails", "~> 8.0.5"
 end
 
 appraise "rails-8.1" do
-  gem "rails", "~> 8.1.2"
+  gem "rails", "~> 8.1.3"
 end
 
 appraise "rails-head" do

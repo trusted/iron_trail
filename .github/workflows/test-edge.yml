@@ -1,0 +1,63 @@
+name: test-edge
+# Bleeding-edge versions (Ruby head, Rails main, PG betas) that aren't
+# officially supported. Runs weekly, outside of PR checks.
+on:
+  schedule:
+  - cron: '0 6 * * 0' # Sundays, 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Ruby ${{ matrix.ruby }}, ${{ matrix.gemfile }}.gemfile, PG ${{ matrix.postgres }}
+    runs-on: ubuntu-latest
+    services:
+      test-postgres:
+        image: postgres:${{ matrix.postgres }}
+        ports:
+        - 5432:5432
+        env:
+          POSTGRES_PASSWORD: foobar123
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - { gemfile: 'rails_8.1', ruby: '4.0', postgres: '19beta4' }
+        - { gemfile: 'rails_8.1', ruby: 'head', postgres: '18' }
+        - { gemfile: 'rails_head', ruby: 'head', postgres: '18' }
+        - { gemfile: 'rails_head', ruby: 'head', postgres: '19beta4' }
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v7
+    - name: Setup ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+        bundler-cache: true
+      env:
+        BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
+    - name: Create database
+      run: |
+        createdb \
+          --host=$POSTGRES_HOST \
+          --port=$POSTGRES_PORT \
+          --username=postgres \
+          dummy
+      env:
+        PGPASSWORD: foobar123
+        POSTGRES_HOST: localhost
+        POSTGRES_PORT: 5432
+    - name: Run specs
+      run:
+        bundle exec rake install_database_yml spec && bundle exec rake testing_spec
+      env:
+        BACKTRACE: 1
+        BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
+        DB: postgres
+        IRONTRAIL_CI_DATABASE: dummy
+        IRONTRAIL_CI_DB_USER: postgres
+        IRONTRAIL_CI_DB_PASSWORD: foobar123
+        IRONTRAIL_CI_DB_HOST: 127.0.0.1
+        IRONTRAIL_CI_DB_PORT: 5432
